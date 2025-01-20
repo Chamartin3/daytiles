@@ -1,0 +1,14 @@
+{
+  "name": "timeboxes",
+  "version": "0.1.0",
+  "description": "Simple, extensible date-range visualization in SVG.",
+  "type": "module",
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "files": [
+    "src"
+  ],
+  "license": "MIT"
+}

@@ -12,13 +12,14 @@
     />
   </head>
   <body>
-    <!-- <div style="display: flex"> -->
     <svg
       id="calendar"
       width="100%"
       height="100%"
     ></svg>
-    <!-- </div> -->
-    <script src="script.js"></script>
+    <script type="module">
+      import { BaseCalendarSettings, drawCalendar } from "./src/index.js";
+      drawCalendar(document.getElementById("calendar"), BaseCalendarSettings);
+    </script>
   </body>
 </html>
