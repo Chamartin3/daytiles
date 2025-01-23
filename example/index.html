@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+    <title>Timeboxes — Interactive Example</title>
+    <link
+      rel="stylesheet"
+      href="../styles.css"
+    />
+    <link
+      rel="stylesheet"
+      href="example.css"
+    />
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>Timeboxes</h1>
+        <p>Tweak the settings, add special dates, and watch the calendar update.</p>
+      </header>
+
+      <section class="controls">
+        <fieldset>
+          <legend>Range</legend>
+          <label>Start (MM-DD)
+            <input id="startDate" type="text" value="01-01" />
+          </label>
+          <label>End (MM-DD)
+            <input id="endDate" type="text" value="12" />
+          </label>
+          <label>Year
+            <input id="year" type="number" placeholder="current" />
+          </label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Layout</legend>
+          <label>Mode
+            <select id="layout">
+              <option value="month">month</option>
+              <option value="week">week</option>
+              <option value="weekday" selected>weekday</option>
+              <option value="custom">custom</option>
+            </select>
+          </label>
+          <label>Day size
+            <input id="daySize" type="number" value="22" min="6" max="60" />
+          </label>
+          <label>Gap
+            <input id="gap" type="number" value="4" min="0" max="20" />
+          </label>
+          <label>Days per row (custom)
+            <input id="daysPerRow" type="number" value="21" min="1" max="60" />
+          </label>
+          <label>Start day of week
+            <select id="startDayOfWeek">
+              <option value="0">Sunday</option>
+              <option value="1" selected>Monday</option>
+            </select>
+          </label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Add special date</legend>
+          <label>Date (MM-DD)
+            <input id="specialDate" type="text" placeholder="04-15" />
+          </label>
+          <label>Color
+            <input id="specialColor" type="color" value="#ff5577" />
+          </label>
+          <label>Note
+            <input id="specialNote" type="text" placeholder="Birthday" />
+          </label>
+          <button id="addSpecial" type="button">Add</button>
+          <ul id="specialList"></ul>
+        </fieldset>
+      </section>
+
+      <section class="canvas">
+        <svg id="calendar" width="100%" height="600"></svg>
+      </section>
+    </main>
+
+    <script type="module" src="example.js"></script>
+  </body>
+</html>
