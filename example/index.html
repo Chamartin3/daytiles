@@ -9,11 +9,11 @@
     <title>Timeboxes — Interactive Example</title>
     <link
       rel="stylesheet"
-      href="../styles.css"
+      href="../styles.css?v=2"
     />
     <link
       rel="stylesheet"
-      href="example.css"
+      href="example.css?v=2"
     />
   </head>
   <body>
@@ -51,7 +51,7 @@
             </select>
           </label>
           <label>Day size
-            <input id="daySize" type="number" value="22" min="6" max="60" />
+            <input id="daySize" type="number" value="16" min="6" max="60" />
           </label>
           <label>Gap
             <input id="gap" type="number" value="4" min="0" max="20" />
@@ -93,13 +93,16 @@
 
         <fieldset>
           <legend>Display</legend>
-          <label class="checkbox">
-            <input id="fadePast" type="checkbox" />
-            Fade past dates
+          <label>Past dates
+            <select id="pastMode">
+              <option value="none">None</option>
+              <option value="fade" selected>Fade</option>
+              <option value="solid">Solid</option>
+            </select>
           </label>
           <label class="checkbox">
-            <input id="solidPast" type="checkbox" />
-            Use past day color
+            <input id="highlightCurrent" type="checkbox" checked />
+            Highlight today
           </label>
           <label class="checkbox">
             <input id="alternateMonths" type="checkbox" checked />
@@ -136,6 +139,6 @@
       </section>
     </main>
 
-    <script type="module" src="example.js"></script>
+    <script type="module" src="example.js?v=2"></script>
   </body>
 </html>

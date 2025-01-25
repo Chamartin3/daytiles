@@ -3,7 +3,7 @@ export const BaseCalendarSettings = {
   startDate: `03-01`,
   endDate: `06`,
   year: null,
-  daySize: 22,
+  daySize: 16,
   gap: 4,
   startDayOfWeek: 1,
   daysPerRow: 21,
@@ -12,7 +12,7 @@ export const BaseCalendarSettings = {
   specialDates: {},
   colors: {
     current: "#FFD700",
-    fadePastDates: false,
+    fadePastDates: true,
     pastDay: "#555",
     futureDay: "#eee",
     alternateMonths: true,

@@ -7,9 +7,10 @@ export function getColor(dateContext, colorSettings) {
   const weekdayColors = colorSettings.highlight?.weekdays || {};
   const monthColors = colorSettings.highlight?.months || {};
   const solidPast = colorSettings.solidPastColor;
+  const highlightCurrent = colorSettings.highlightCurrent !== false;
 
-  if (dateContext.isPresent) return currentColor;
-  if (solidPast && dateContext.isPast) return pastDayColor;
+  if (highlightCurrent && dateContext.isPresent) return currentColor;
+  if (solidPast && dateContext.isPast && !dateContext.isPresent) return pastDayColor;
   if (dateContext.dayOfWeek in weekdayColors) {
     return weekdayColors[dateContext.dayOfWeek];
   }

@@ -17,8 +17,8 @@ const inputs = {
   colorFuture: $("colorFuture"),
   colorAlt: $("colorAlt"),
   colorWeekend: $("colorWeekend"),
-  fadePast: $("fadePast"),
-  solidPast: $("solidPast"),
+  pastMode: $("pastMode"),
+  highlightCurrent: $("highlightCurrent"),
   alternateMonths: $("alternateMonths"),
   highlightWeekend: $("highlightWeekend"),
   showLabels: $("showLabels"),
@@ -45,8 +45,9 @@ function buildSettings() {
       futureDay: inputs.colorFuture.value,
       alternateMonths: inputs.alternateMonths.checked,
       alternateMonthColor: inputs.colorAlt.value,
-      fadePastDates: inputs.fadePast.checked,
-      solidPastColor: inputs.solidPast.checked,
+      highlightCurrent: inputs.highlightCurrent.checked,
+      fadePastDates: inputs.pastMode.value === "fade",
+      solidPastColor: inputs.pastMode.value === "solid",
       highlight: { weekdays, months: {} },
     },
   };
@@ -141,9 +142,11 @@ document.getElementById("addSpecial").addEventListener("click", () => {
   }
   const [, month, day] = value.split("-");
   const key = `${month}-${day}`;
+  const note = specialNoteInput.value || key;
+  const existing = specialDates[key];
   specialDates[key] = {
     color: specialColorInput.value,
-    note: specialNoteInput.value || key,
+    note: existing?.note ? `${existing.note} • ${note}` : note,
   };
   specialDateInput.value = "";
   specialNoteInput.value = "";

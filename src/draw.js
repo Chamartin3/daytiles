@@ -12,21 +12,21 @@ export function drawDateSquare(
   const square = document.createElementNS(SVG_NS, "rect");
   const dayColor = overwrites.color || getColor(dateContext, colorSettings);
   const dayClasses = getClasses(dateContext);
-  const note = overwrites.note || dateToDraw.toDateString();
 
   square.setAttribute("x", x);
   square.setAttribute("y", y);
   square.setAttribute("width", size);
   square.setAttribute("height", size);
   square.setAttribute("fill", dayColor);
-  if (dateContext.isPast && colorSettings.fadePastDates) {
-    const opacity =
+  if (dateContext.isPast && !dateContext.isPresent && colorSettings.fadePastDates) {
+    const brightness =
       typeof colorSettings.fadePastDates === "number"
         ? colorSettings.fadePastDates
-        : 0.4;
-    square.setAttribute("fill-opacity", opacity);
+        : 0.6;
+    square.style.filter = `brightness(${brightness})`;
   }
-  square.setAttribute("data-date", note);
+  square.setAttribute("data-date", dateToDraw.toDateString());
+  if (overwrites.note) square.setAttribute("data-note", overwrites.note);
   square.addEventListener("mouseover", showDateTooltip);
   square.addEventListener("mouseout", hideDateTooltip);
   dayClasses.forEach((c) => square.classList.add(c));

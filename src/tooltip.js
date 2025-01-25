@@ -27,9 +27,21 @@ function ensureTooltip() {
 }
 
 export function showDateTooltip(event) {
-  const dateInfo = event.target.getAttribute("data-date");
+  const date = event.target.getAttribute("data-date");
+  const note = event.target.getAttribute("data-note");
   const el = ensureTooltip();
-  el.textContent = dateInfo;
+  el.innerHTML = "";
+  const dateLine = document.createElement("div");
+  dateLine.textContent = date;
+  el.appendChild(dateLine);
+  if (note) {
+    const noteLine = document.createElement("div");
+    noteLine.textContent = note;
+    noteLine.style.opacity = "0.85";
+    noteLine.style.fontStyle = "italic";
+    noteLine.style.marginTop = "2px";
+    el.appendChild(noteLine);
+  }
   el.style.display = "block";
   const rect = event.target.getBoundingClientRect();
   el.style.left = `${rect.right + 8}px`;
