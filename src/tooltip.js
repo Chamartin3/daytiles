@@ -1,34 +1,42 @@
-const SVG_NS = "http://www.w3.org/2000/svg";
+const TOOLTIP_ID = "timeboxes-tooltip";
+
+function ensureTooltip() {
+  let el = document.getElementById(TOOLTIP_ID);
+  if (!el) {
+    el = document.createElement("div");
+    el.id = TOOLTIP_ID;
+    el.className = "tooltip-box";
+    Object.assign(el.style, {
+      position: "fixed",
+      pointerEvents: "none",
+      zIndex: "9999",
+      display: "none",
+      background: "#222",
+      color: "#fff",
+      border: "1px solid #000",
+      borderRadius: "5px",
+      padding: "4px 8px",
+      fontFamily: "Arial, sans-serif",
+      fontSize: "12px",
+      whiteSpace: "nowrap",
+      boxShadow: "0 2px 6px rgba(0,0,0,0.25)",
+    });
+    document.body.appendChild(el);
+  }
+  return el;
+}
 
 export function showDateTooltip(event) {
   const dateInfo = event.target.getAttribute("data-date");
-  const x = parseInt(event.target.getAttribute("x"));
-  const y = parseInt(event.target.getAttribute("y"));
-  const calendar = event.target.ownerSVGElement;
-  if (!calendar) return;
-
-  const tooltipGroup = document.createElementNS(SVG_NS, "g");
-  tooltipGroup.setAttribute("id", "dateTooltip");
-
-  const background = document.createElementNS(SVG_NS, "rect");
-  background.setAttribute("x", x - 5);
-  background.setAttribute("y", y - 5);
-  background.setAttribute("width", 100);
-  background.setAttribute("height", 20);
-  background.setAttribute("class", "tooltip-box");
-
-  const text = document.createElementNS(SVG_NS, "text");
-  text.setAttribute("x", x);
-  text.setAttribute("y", y + 10);
-  text.textContent = dateInfo;
-  text.setAttribute("class", "tooltip-text");
-
-  tooltipGroup.appendChild(background);
-  tooltipGroup.appendChild(text);
-  calendar.appendChild(tooltipGroup);
+  const el = ensureTooltip();
+  el.textContent = dateInfo;
+  el.style.display = "block";
+  const rect = event.target.getBoundingClientRect();
+  el.style.left = `${rect.right + 8}px`;
+  el.style.top = `${rect.top}px`;
 }
 
 export function hideDateTooltip() {
-  const tooltip = document.getElementById("dateTooltip");
-  if (tooltip) tooltip.remove();
+  const el = document.getElementById(TOOLTIP_ID);
+  if (el) el.style.display = "none";
 }

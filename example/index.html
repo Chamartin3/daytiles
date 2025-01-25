@@ -26,15 +26,18 @@
       <section class="controls">
         <fieldset>
           <legend>Range</legend>
-          <label>Start (MM-DD)
-            <input id="startDate" type="text" value="01-01" />
+          <label>Start
+            <input id="startDate" type="date" value="2025-01-01" />
           </label>
-          <label>End (MM-DD)
-            <input id="endDate" type="text" value="12" />
+          <label>End
+            <input id="endDate" type="date" value="2025-12-31" />
           </label>
-          <label>Year
-            <input id="year" type="number" placeholder="current" />
-          </label>
+          <div class="presets">
+            <span class="presets-title">Presets</span>
+            <button type="button" data-preset="month">This month</button>
+            <button type="button" data-preset="quarter">This quarter</button>
+            <button type="button" data-preset="year">This year</button>
+          </div>
         </fieldset>
 
         <fieldset>
@@ -60,14 +63,62 @@
             <select id="startDayOfWeek">
               <option value="0">Sunday</option>
               <option value="1" selected>Monday</option>
+              <option value="2">Tuesday</option>
+              <option value="3">Wednesday</option>
+              <option value="4">Thursday</option>
+              <option value="5">Friday</option>
+              <option value="6">Saturday</option>
             </select>
           </label>
         </fieldset>
 
         <fieldset>
+          <legend>Colors</legend>
+          <label>Today
+            <input id="colorCurrent" type="color" value="#FFD700" />
+          </label>
+          <label>Past day
+            <input id="colorPast" type="color" value="#555555" />
+          </label>
+          <label>Future day
+            <input id="colorFuture" type="color" value="#eeeeee" />
+          </label>
+          <label>Alt. month
+            <input id="colorAlt" type="color" value="#d2f0fa" />
+          </label>
+          <label>Weekend
+            <input id="colorWeekend" type="color" value="#BAFFC9" />
+          </label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Display</legend>
+          <label class="checkbox">
+            <input id="fadePast" type="checkbox" />
+            Fade past dates
+          </label>
+          <label class="checkbox">
+            <input id="solidPast" type="checkbox" />
+            Use past day color
+          </label>
+          <label class="checkbox">
+            <input id="alternateMonths" type="checkbox" checked />
+            Alternate month colors
+          </label>
+          <label class="checkbox">
+            <input id="highlightWeekend" type="checkbox" checked />
+            Highlight weekends
+          </label>
+          <label class="checkbox">
+            <input id="showLabels" type="checkbox" />
+            Show row labels
+          </label>
+        </fieldset>
+
+        <fieldset>
           <legend>Add special date</legend>
-          <label>Date (MM-DD)
-            <input id="specialDate" type="text" placeholder="04-15" />
+          <label>Date
+            <input id="specialDate" type="date" />
           </label>
           <label>Color
             <input id="specialColor" type="color" value="#ff5577" />

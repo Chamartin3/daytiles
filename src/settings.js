@@ -7,6 +7,8 @@ export const BaseCalendarSettings = {
   gap: 4,
   startDayOfWeek: 1,
   daysPerRow: 21,
+  showLabels: false,
+  labelWidth: 56,
   specialDates: {},
   colors: {
     current: "#FFD700",

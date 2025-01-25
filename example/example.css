@@ -46,6 +46,16 @@ label {
   color: #555;
 }
 
+label.checkbox {
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+}
+
+label.checkbox input {
+  margin: 0;
+}
+
 label input,
 label select {
   margin-top: 2px;
@@ -59,6 +69,27 @@ button {
   border-radius: 4px;
   background: #f3f3f3;
   cursor: pointer;
+}
+
+.presets {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.presets-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #888;
+  font-weight: 600;
+}
+
+.presets button {
+  padding: 4px 8px;
+  font-size: 12px;
+  text-align: left;
 }
 
 button:hover {
@@ -101,4 +132,9 @@ button:hover {
   border-radius: 6px;
   padding: 12px;
   overflow: auto;
+  max-height: 70vh;
+}
+
+.canvas svg {
+  display: block;
 }

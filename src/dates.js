@@ -8,11 +8,24 @@ export function stringToDate(datestring, year, last = false) {
   return new Date(year, monthNum, 0);
 }
 
+function toDate(value, fallbackYear, last) {
+  if (value instanceof Date) return new Date(value);
+  if (typeof value === "string") {
+    const parts = value.split("-");
+    if (parts.length === 3) {
+      const [y, m, d] = parts.map((n) => parseInt(n));
+      return new Date(y, m - 1, d);
+    }
+    return stringToDate(value, fallbackYear, last);
+  }
+  throw new Error("Unsupported date value");
+}
+
 export function getRangeDates(initial, final, year = null) {
   const dateYear = year || new Date().getFullYear();
   return {
-    startDate: stringToDate(initial, dateYear),
-    endDate: stringToDate(final, dateYear, true),
+    startDate: toDate(initial, dateYear, false),
+    endDate: toDate(final, dateYear, true),
   };
 }
 

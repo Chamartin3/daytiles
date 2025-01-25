@@ -6,10 +6,10 @@ export function getColor(dateContext, colorSettings) {
   const alternateMonthColor = colorSettings.alternateMonthColor;
   const weekdayColors = colorSettings.highlight?.weekdays || {};
   const monthColors = colorSettings.highlight?.months || {};
-  const fadePast = colorSettings.fadePastDates;
+  const solidPast = colorSettings.solidPastColor;
 
   if (dateContext.isPresent) return currentColor;
-  if (fadePast && dateContext.isPast) return pastDayColor;
+  if (solidPast && dateContext.isPast) return pastDayColor;
   if (dateContext.dayOfWeek in weekdayColors) {
     return weekdayColors[dateContext.dayOfWeek];
   }

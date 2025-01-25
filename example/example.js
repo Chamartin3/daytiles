@@ -3,34 +3,62 @@ import { BaseCalendarSettings, drawCalendar } from "../src/index.js";
 const svg = document.getElementById("calendar");
 const specialDates = {};
 
+const $ = (id) => document.getElementById(id);
 const inputs = {
-  startDate: document.getElementById("startDate"),
-  endDate: document.getElementById("endDate"),
-  year: document.getElementById("year"),
-  layout: document.getElementById("layout"),
-  daySize: document.getElementById("daySize"),
-  gap: document.getElementById("gap"),
-  daysPerRow: document.getElementById("daysPerRow"),
-  startDayOfWeek: document.getElementById("startDayOfWeek"),
+  startDate: $("startDate"),
+  endDate: $("endDate"),
+  layout: $("layout"),
+  daySize: $("daySize"),
+  gap: $("gap"),
+  daysPerRow: $("daysPerRow"),
+  startDayOfWeek: $("startDayOfWeek"),
+  colorCurrent: $("colorCurrent"),
+  colorPast: $("colorPast"),
+  colorFuture: $("colorFuture"),
+  colorAlt: $("colorAlt"),
+  colorWeekend: $("colorWeekend"),
+  fadePast: $("fadePast"),
+  solidPast: $("solidPast"),
+  alternateMonths: $("alternateMonths"),
+  highlightWeekend: $("highlightWeekend"),
+  showLabels: $("showLabels"),
 };
 
 function buildSettings() {
+  const weekdays = inputs.highlightWeekend.checked
+    ? { 0: inputs.colorWeekend.value, 6: inputs.colorWeekend.value }
+    : {};
   return {
     ...BaseCalendarSettings,
     layout: inputs.layout.value,
-    startDate: inputs.startDate.value || "01-01",
-    endDate: inputs.endDate.value || "12",
-    year: inputs.year.value ? parseInt(inputs.year.value) : null,
+    startDate: inputs.startDate.value || "2025-01-01",
+    endDate: inputs.endDate.value || "2025-12-31",
     daySize: parseInt(inputs.daySize.value) || 22,
     gap: parseInt(inputs.gap.value) || 0,
     daysPerRow: parseInt(inputs.daysPerRow.value) || 21,
     startDayOfWeek: parseInt(inputs.startDayOfWeek.value),
+    showLabels: inputs.showLabels.checked,
     specialDates: { ...specialDates },
+    colors: {
+      current: inputs.colorCurrent.value,
+      pastDay: inputs.colorPast.value,
+      futureDay: inputs.colorFuture.value,
+      alternateMonths: inputs.alternateMonths.checked,
+      alternateMonthColor: inputs.colorAlt.value,
+      fadePastDates: inputs.fadePast.checked,
+      solidPastColor: inputs.solidPast.checked,
+      highlight: { weekdays, months: {} },
+    },
   };
 }
 
 function render() {
   drawCalendar(svg, buildSettings());
+  const bbox = svg.getBBox();
+  const w = Math.ceil(bbox.x + bbox.width);
+  const h = Math.ceil(bbox.y + bbox.height);
+  svg.setAttribute("width", w);
+  svg.setAttribute("height", h);
 }
 
 Object.values(inputs).forEach((el) => {
@@ -70,12 +98,49 @@ function refreshSpecialList() {
   }
 }
 
+function isoDate(d) {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function applyPreset(name) {
+  const today = new Date();
+  let start, end;
+  switch (name) {
+    case "month":
+      start = new Date(today.getFullYear(), today.getMonth(), 1);
+      end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+      break;
+    case "quarter": {
+      const q = Math.floor(today.getMonth() / 3);
+      start = new Date(today.getFullYear(), q * 3, 1);
+      end = new Date(today.getFullYear(), q * 3 + 3, 0);
+      break;
+    }
+    case "year":
+      start = new Date(today.getFullYear(), 0, 1);
+      end = new Date(today.getFullYear(), 11, 31);
+      break;
+  }
+  inputs.startDate.value = isoDate(start);
+  inputs.endDate.value = isoDate(end);
+  render();
+}
+
+document.querySelectorAll(".presets button").forEach((btn) => {
+  btn.addEventListener("click", () => applyPreset(btn.dataset.preset));
+});
+
 document.getElementById("addSpecial").addEventListener("click", () => {
-  const key = specialDateInput.value.trim();
-  if (!/^\d{2}-\d{2}$/.test(key)) {
-    alert("Use MM-DD format, e.g. 04-15");
+  const value = specialDateInput.value;
+  if (!value) {
+    alert("Pick a date first");
     return;
   }
+  const [, month, day] = value.split("-");
+  const key = `${month}-${day}`;
   specialDates[key] = {
     color: specialColorInput.value,
     note: specialNoteInput.value || key,

@@ -19,12 +19,48 @@ export function drawDateSquare(
   square.setAttribute("width", size);
   square.setAttribute("height", size);
   square.setAttribute("fill", dayColor);
+  if (dateContext.isPast && colorSettings.fadePastDates) {
+    const opacity =
+      typeof colorSettings.fadePastDates === "number"
+        ? colorSettings.fadePastDates
+        : 0.4;
+    square.setAttribute("fill-opacity", opacity);
+  }
   square.setAttribute("data-date", note);
   square.addEventListener("mouseover", showDateTooltip);
   square.addEventListener("mouseout", hideDateTooltip);
   dayClasses.forEach((c) => square.classList.add(c));
 
   return square;
+}
+
+const MONTH_NAMES = [
+  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+];
+const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+function isoWeek(date) {
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const day = d.getUTCDay() || 7;
+  d.setUTCDate(d.getUTCDate() + 4 - day);
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  return Math.ceil(((d - yearStart) / 86400000 + 1) / 7);
+}
+
+function rowLabel(layout, date, rowIndex, daysPerRow) {
+  switch (layout) {
+    case "month":
+      return `${MONTH_NAMES[date.getMonth()]} ${date.getFullYear()}`;
+    case "week":
+      return `W${isoWeek(date)}`;
+    case "weekday":
+      return DAY_NAMES[date.getDay()];
+    case "custom":
+      return `${rowIndex * daysPerRow + 1}`;
+    default:
+      return "";
+  }
 }
 
 export function drawCalendar(svgElement, settings) {
@@ -34,6 +70,8 @@ export function drawCalendar(svgElement, settings) {
     daySize: squareSize,
     gap,
     startDayOfWeek = 1,
+    showLabels = false,
+    labelWidth = 56,
     specialDates,
     startDate: begin,
     endDate: end,
@@ -49,6 +87,10 @@ export function drawCalendar(svgElement, settings) {
   let dayIndex = 0;
 
   const adjustedColumn = (date) => (7 + date.getDay() - startDayOfWeek) % 7;
+
+  const cells = [];
+  const labels = [];
+  const labeledRows = new Set();
 
   while (currentDate <= endDate) {
     let newRow = false;
@@ -83,15 +125,46 @@ export function drawCalendar(svgElement, settings) {
 
     if (newRow) row++;
 
-    const displayConfig = {
-      x: col * (squareSize + gap),
-      y: row * (squareSize + gap),
-      size: squareSize,
-      overwrites: isSpecialDate(currentDate, specialDates),
-      colorSettings,
-    };
+    if (showLabels && !labeledRows.has(row)) {
+      labeledRows.add(row);
+      labels.push({
+        row,
+        text: rowLabel(layout, currentDate, row, daysPerRow),
+      });
+    }
 
-    svgElement.appendChild(drawDateSquare(currentDate, displayConfig));
+    cells.push({ date: new Date(currentDate), row, col });
     currentDate.setDate(currentDate.getDate() + 1);
+  }
+
+  let offsetX = 0;
+  if (showLabels) {
+    const labelEls = labels.map(({ row: r, text }) => {
+      const el = document.createElementNS(SVG_NS, "text");
+      el.setAttribute("x", 0);
+      el.setAttribute("y", r * (squareSize + gap) + squareSize * 0.7);
+      el.setAttribute("class", "row-label");
+      el.textContent = text;
+      svgElement.appendChild(el);
+      return el;
+    });
+    let maxWidth = labelWidth;
+    for (const el of labelEls) {
+      const w = el.getBBox().width;
+      if (w > maxWidth) maxWidth = w;
+    }
+    offsetX = maxWidth + 8;
+  }
+
+  for (const { date, row: r, col: c } of cells) {
+    svgElement.appendChild(
+      drawDateSquare(date, {
+        x: offsetX + c * (squareSize + gap),
+        y: r * (squareSize + gap),
+        size: squareSize,
+        overwrites: isSpecialDate(date, specialDates),
+        colorSettings,
+      }),
+    );
   }
 }
