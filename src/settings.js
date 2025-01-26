@@ -9,7 +9,7 @@ export const BaseCalendarSettings = {
   daysPerRow: 21,
   showLabels: false,
   labelWidth: 56,
-  specialDates: {},
+  events: {},
   colors: {
     current: "#FFD700",
     fadePastDates: true,

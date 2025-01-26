@@ -29,7 +29,7 @@ export function getRangeDates(initial, final, year = null) {
   };
 }
 
-export function isSpecialDate(date, specialDates) {
+export function getEvent(date, events) {
   const formattedDate = date
     .toLocaleDateString("en-US", {
       month: "2-digit",
@@ -37,7 +37,7 @@ export function isSpecialDate(date, specialDates) {
     })
     .replace("/", "-");
 
-  return formattedDate in specialDates ? specialDates[formattedDate] : {};
+  return formattedDate in events ? events[formattedDate] : {};
 }
 
 export function getDateContext(date, today = new Date()) {

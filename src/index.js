@@ -2,7 +2,7 @@ export { BaseCalendarSettings } from "./settings.js";
 export {
   stringToDate,
   getRangeDates,
-  isSpecialDate,
+  getEvent,
   getDateContext,
 } from "./dates.js";
 export { getColor, getClasses } from "./colors.js";

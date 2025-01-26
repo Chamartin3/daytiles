@@ -20,7 +20,7 @@
     <main>
       <header>
         <h1>Timeboxes</h1>
-        <p>Tweak the settings, add special dates, and watch the calendar update.</p>
+        <p>Tweak the settings, add events, and watch the calendar update.</p>
       </header>
 
       <section class="controls">
@@ -118,24 +118,32 @@
           </label>
         </fieldset>
 
-        <fieldset>
-          <legend>Add special date</legend>
-          <label>Date
-            <input id="specialDate" type="date" />
-          </label>
-          <label>Color
-            <input id="specialColor" type="color" value="#ff5577" />
-          </label>
-          <label>Note
-            <input id="specialNote" type="text" placeholder="Birthday" />
-          </label>
-          <button id="addSpecial" type="button">Add</button>
-          <ul id="specialList"></ul>
-        </fieldset>
       </section>
 
       <section class="canvas">
         <svg id="calendar" width="100%" height="600"></svg>
+      </section>
+
+      <section class="events">
+        <fieldset>
+          <legend>Add event</legend>
+          <div class="event-form">
+            <label>From
+              <input id="eventStart" type="date" />
+            </label>
+            <label>To (optional)
+              <input id="eventEnd" type="date" />
+            </label>
+            <label>Color
+              <input id="eventColor" type="color" value="#ff5577" />
+            </label>
+            <label>Note
+              <input id="eventNote" type="text" placeholder="Vacation" />
+            </label>
+            <button id="addEvent" type="button">Add</button>
+          </div>
+          <ul id="eventList"></ul>
+        </fieldset>
       </section>
     </main>
 

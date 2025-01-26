@@ -1,7 +1,35 @@
 import { BaseCalendarSettings, drawCalendar } from "../src/index.js";
 
 const svg = document.getElementById("calendar");
-const specialDates = {};
+const eventEntries = [];
+const events = {};
+
+function isoDateOnly(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+function rebuildEvents() {
+  for (const k of Object.keys(events)) delete events[k];
+  for (const entry of eventEntries) {
+    const cursor = new Date(entry.start);
+    const end = new Date(entry.end);
+    while (cursor <= end) {
+      const month = String(cursor.getMonth() + 1).padStart(2, "0");
+      const day = String(cursor.getDate()).padStart(2, "0");
+      const key = `${month}-${day}`;
+      const note = entry.note || key;
+      const existing = events[key];
+      events[key] = {
+        color: entry.color,
+        note: existing?.note ? `${existing.note} • ${note}` : note,
+      };
+      cursor.setDate(cursor.getDate() + 1);
+    }
+  }
+}
 
 const $ = (id) => document.getElementById(id);
 const inputs = {
@@ -38,7 +66,7 @@ function buildSettings() {
     daysPerRow: parseInt(inputs.daysPerRow.value) || 21,
     startDayOfWeek: parseInt(inputs.startDayOfWeek.value),
     showLabels: inputs.showLabels.checked,
-    specialDates: { ...specialDates },
+    events: { ...events },
     colors: {
       current: inputs.colorCurrent.value,
       pastDay: inputs.colorPast.value,
@@ -67,35 +95,42 @@ Object.values(inputs).forEach((el) => {
   el.addEventListener("change", render);
 });
 
-const specialList = document.getElementById("specialList");
-const specialDateInput = document.getElementById("specialDate");
-const specialColorInput = document.getElementById("specialColor");
-const specialNoteInput = document.getElementById("specialNote");
+const eventList = document.getElementById("eventList");
+const eventStartInput = document.getElementById("eventStart");
+const eventEndInput = document.getElementById("eventEnd");
+const eventColorInput = document.getElementById("eventColor");
+const eventNoteInput = document.getElementById("eventNote");
 
-function refreshSpecialList() {
-  specialList.innerHTML = "";
-  for (const [key, value] of Object.entries(specialDates)) {
+function refreshEventList() {
+  eventList.innerHTML = "";
+  for (const entry of eventEntries) {
     const li = document.createElement("li");
 
     const swatch = document.createElement("span");
     swatch.className = "swatch";
-    swatch.style.background = value.color || "#ccc";
+    swatch.style.background = entry.color;
 
+    const range =
+      entry.start === entry.end
+        ? entry.start
+        : `${entry.start} → ${entry.end}`;
     const label = document.createElement("span");
-    label.textContent = `${key} — ${value.note || ""}`;
+    label.textContent = `${range}${entry.note ? ` — ${entry.note}` : ""}`;
 
     const remove = document.createElement("button");
     remove.className = "remove";
     remove.type = "button";
     remove.textContent = "✕";
     remove.addEventListener("click", () => {
-      delete specialDates[key];
-      refreshSpecialList();
+      const idx = eventEntries.indexOf(entry);
+      if (idx >= 0) eventEntries.splice(idx, 1);
+      rebuildEvents();
+      refreshEventList();
       render();
     });
 
     li.append(swatch, label, remove);
-    specialList.appendChild(li);
+    eventList.appendChild(li);
   }
 }
 
@@ -134,23 +169,30 @@ document.querySelectorAll(".presets button").forEach((btn) => {
   btn.addEventListener("click", () => applyPreset(btn.dataset.preset));
 });
 
-document.getElementById("addSpecial").addEventListener("click", () => {
-  const value = specialDateInput.value;
-  if (!value) {
-    alert("Pick a date first");
+document.getElementById("addEvent").addEventListener("click", () => {
+  const start = eventStartInput.value;
+  if (!start) {
+    alert("Pick a start date first");
     return;
   }
-  const [, month, day] = value.split("-");
-  const key = `${month}-${day}`;
-  const note = specialNoteInput.value || key;
-  const existing = specialDates[key];
-  specialDates[key] = {
-    color: specialColorInput.value,
-    note: existing?.note ? `${existing.note} • ${note}` : note,
-  };
-  specialDateInput.value = "";
-  specialNoteInput.value = "";
-  refreshSpecialList();
+  const end = eventEndInput.value || start;
+  const startDate = new Date(start);
+  const endDate = new Date(end);
+  if (endDate < startDate) {
+    alert("End date must be on or after start date");
+    return;
+  }
+  eventEntries.push({
+    start: isoDateOnly(startDate),
+    end: isoDateOnly(endDate),
+    color: eventColorInput.value,
+    note: eventNoteInput.value,
+  });
+  rebuildEvents();
+  eventStartInput.value = "";
+  eventEndInput.value = "";
+  eventNoteInput.value = "";
+  refreshEventList();
   render();
 });
 

@@ -1,5 +1,5 @@
 import { getColor, getClasses } from "./colors.js";
-import { getDateContext, getRangeDates, isSpecialDate } from "./dates.js";
+import { getDateContext, getRangeDates, getEvent } from "./dates.js";
 import { showDateTooltip, hideDateTooltip } from "./tooltip.js";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
@@ -72,7 +72,7 @@ export function drawCalendar(svgElement, settings) {
     startDayOfWeek = 1,
     showLabels = false,
     labelWidth = 56,
-    specialDates,
+    events,
     startDate: begin,
     endDate: end,
     year,
@@ -162,7 +162,7 @@ export function drawCalendar(svgElement, settings) {
         x: offsetX + c * (squareSize + gap),
         y: r * (squareSize + gap),
         size: squareSize,
-        overwrites: isSpecialDate(date, specialDates),
+        overwrites: getEvent(date, events),
         colorSettings,
       }),
     );
