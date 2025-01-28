@@ -1,5 +1,5 @@
 {
-  "name": "timeboxes",
+  "name": "daytiles",
   "version": "0.1.0",
   "description": "Simple, extensible date-range visualization in SVG.",
   "type": "module",

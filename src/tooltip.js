@@ -1,4 +1,4 @@
-const TOOLTIP_ID = "timeboxes-tooltip";
+const TOOLTIP_ID = "daytiles-tooltip";
 
 function ensureTooltip() {
   let el = document.getElementById(TOOLTIP_ID);
