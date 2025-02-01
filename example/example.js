@@ -59,8 +59,8 @@ function buildSettings() {
   return {
     ...BaseCalendarSettings,
     layout: inputs.layout.value,
-    startDate: inputs.startDate.value || "2025-01-01",
-    endDate: inputs.endDate.value || "2025-12-31",
+    startDate: inputs.startDate.value,
+    endDate: inputs.endDate.value,
     daySize: parseInt(inputs.daySize.value) || 22,
     gap: parseInt(inputs.gap.value) || 0,
     daysPerRow: parseInt(inputs.daysPerRow.value) || 21,
@@ -195,5 +195,9 @@ document.getElementById("addEvent").addEventListener("click", () => {
   refreshEventList();
   render();
 });
+
+const currentYear = new Date().getFullYear();
+inputs.startDate.value = `${currentYear}-01-01`;
+inputs.endDate.value = `${currentYear}-12-31`;
 
 render();
