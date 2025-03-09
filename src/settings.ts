@@ -1,0 +1,59 @@
+import type { ColorSettings } from "./colors.js";
+import type { DateInput, EventsDict } from "./dates.js";
+
+export enum Layout {
+  Month = "month",
+  Week = "week",
+  Weekday = "weekday",
+  Custom = "custom",
+}
+
+export enum PastMode {
+  None = "none",
+  Fade = "fade",
+  Solid = "solid",
+}
+
+export interface CalendarSettings {
+  layout: Layout;
+  startDate: DateInput;
+  endDate: DateInput;
+  year: number | null;
+  daySize: number;
+  gap: number;
+  startDayOfWeek: number;
+  daysPerRow: number;
+  showLabels: boolean;
+  labelWidth: number;
+  events: EventsDict;
+  colors: ColorSettings;
+}
+
+export const BaseCalendarSettings: CalendarSettings = {
+  layout: Layout.Weekday,
+  startDate: "03-01",
+  endDate: "06",
+  year: null,
+  daySize: 16,
+  gap: 4,
+  startDayOfWeek: 1,
+  daysPerRow: 21,
+  showLabels: false,
+  labelWidth: 56,
+  events: {},
+  colors: {
+    current: "#FFD700",
+    fadePastDates: true,
+    pastDay: "#555",
+    futureDay: "#eee",
+    alternateMonths: true,
+    alternateMonthColor: "#d2f0fa",
+    highlight: {
+      weekdays: {
+        0: "#BAFFC9",
+        6: "#BAFFC9",
+      },
+      months: {},
+    },
+  },
+};
