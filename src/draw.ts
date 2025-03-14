@@ -6,6 +6,7 @@ import {
   type EventInfo,
 } from "./dates.js";
 import { Layout, type CalendarSettings } from "./settings.js";
+import { Shape, createTile } from "./shapes.js";
 import { showDateTooltip, hideDateTooltip } from "./tooltip.js";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
@@ -13,28 +14,25 @@ const DEFAULT_FADE_BRIGHTNESS = 0.6;
 const ROW_LABEL_CLASS = "row-label";
 const ROW_LABEL_GAP = 8;
 
-interface SquareOptions {
+interface TileOptions {
   x: number;
   y: number;
   size: number;
+  shape: Shape;
   overwrites: EventInfo;
   colorSettings: ColorSettings;
 }
 
-export function drawDateSquare(
+export function drawDateTile(
   dateToDraw: Date,
-  { x, y, size, overwrites, colorSettings }: SquareOptions,
-): SVGRectElement {
+  { x, y, size, shape, overwrites, colorSettings }: TileOptions,
+): SVGElement {
   const dateContext = getDateContext(dateToDraw);
-  const square = document.createElementNS(SVG_NS, "rect");
+  const tile = createTile(shape, x, y, size);
   const dayColor = overwrites.color || getColor(dateContext, colorSettings);
   const dayClasses = getClasses(dateContext);
 
-  square.setAttribute("x", String(x));
-  square.setAttribute("y", String(y));
-  square.setAttribute("width", String(size));
-  square.setAttribute("height", String(size));
-  square.setAttribute("fill", dayColor);
+  tile.setAttribute("fill", dayColor);
   if (
     dateContext.isPast &&
     !dateContext.isPresent &&
@@ -44,15 +42,15 @@ export function drawDateSquare(
       typeof colorSettings.fadePastDates === "number"
         ? colorSettings.fadePastDates
         : DEFAULT_FADE_BRIGHTNESS;
-    square.style.filter = `brightness(${brightness})`;
+    tile.style.filter = `brightness(${brightness})`;
   }
-  square.setAttribute("data-date", dateToDraw.toDateString());
-  if (overwrites.note) square.setAttribute("data-note", overwrites.note);
-  square.addEventListener("mouseover", showDateTooltip);
-  square.addEventListener("mouseout", hideDateTooltip);
-  dayClasses.forEach((c) => square.classList.add(c));
+  tile.setAttribute("data-date", dateToDraw.toDateString());
+  if (overwrites.note) tile.setAttribute("data-note", overwrites.note);
+  tile.addEventListener("mouseover", showDateTooltip);
+  tile.addEventListener("mouseout", hideDateTooltip);
+  dayClasses.forEach((c) => tile.classList.add(c));
 
-  return square;
+  return tile;
 }
 
 const MONTH_NAMES = [
@@ -107,6 +105,7 @@ export function drawCalendar(
     startDayOfWeek,
     showLabels,
     labelWidth,
+    shape,
     events,
     startDate: begin,
     endDate: end,
@@ -194,10 +193,11 @@ export function drawCalendar(
 
   for (const { date, row: r, col: c } of cells) {
     svgElement.appendChild(
-      drawDateSquare(date, {
+      drawDateTile(date, {
         x: offsetX + c * (squareSize + gap),
         y: r * (squareSize + gap),
         size: squareSize,
+        shape,
         overwrites: getEvent(date, events),
         colorSettings,
       }),

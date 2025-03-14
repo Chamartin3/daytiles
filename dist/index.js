@@ -83,6 +83,32 @@ function getDateContext(date, today = /* @__PURE__ */ new Date()) {
   };
 }
 
+// src/shapes.ts
+var Shape = /* @__PURE__ */ ((Shape3) => {
+  Shape3["Rect"] = "rect";
+  Shape3["RoundedRect"] = "roundedRect";
+  Shape3["Circle"] = "circle";
+  Shape3["Diamond"] = "diamond";
+  return Shape3;
+})(Shape || {});
+var SVG_NS = "http://www.w3.org/2000/svg";
+function createTile(shape, x, y, size) {
+  switch (shape) {
+    case "rect" /* Rect */:
+    case "roundedRect" /* RoundedRect */:
+    case "circle" /* Circle */:
+    case "diamond" /* Diamond */:
+    default: {
+      const rect = document.createElementNS(SVG_NS, "rect");
+      rect.setAttribute("x", String(x));
+      rect.setAttribute("y", String(y));
+      rect.setAttribute("width", String(size));
+      rect.setAttribute("height", String(size));
+      return rect;
+    }
+  }
+}
+
 // src/settings.ts
 var Layout = /* @__PURE__ */ ((Layout2) => {
   Layout2["Month"] = "month";
@@ -108,6 +134,7 @@ var BaseCalendarSettings = {
   daysPerRow: 21,
   showLabels: false,
   labelWidth: 56,
+  shape: "rect" /* Rect */,
   events: {},
   colors: {
     current: "#FFD700",
@@ -184,30 +211,26 @@ function hideDateTooltip() {
 }
 
 // src/draw.ts
-var SVG_NS = "http://www.w3.org/2000/svg";
+var SVG_NS2 = "http://www.w3.org/2000/svg";
 var DEFAULT_FADE_BRIGHTNESS = 0.6;
 var ROW_LABEL_CLASS = "row-label";
 var ROW_LABEL_GAP = 8;
-function drawDateSquare(dateToDraw, { x, y, size, overwrites, colorSettings }) {
+function drawDateTile(dateToDraw, { x, y, size, shape, overwrites, colorSettings }) {
   const dateContext = getDateContext(dateToDraw);
-  const square = document.createElementNS(SVG_NS, "rect");
+  const tile = createTile(shape, x, y, size);
   const dayColor = overwrites.color || getColor(dateContext, colorSettings);
   const dayClasses = getClasses(dateContext);
-  square.setAttribute("x", String(x));
-  square.setAttribute("y", String(y));
-  square.setAttribute("width", String(size));
-  square.setAttribute("height", String(size));
-  square.setAttribute("fill", dayColor);
+  tile.setAttribute("fill", dayColor);
   if (dateContext.isPast && !dateContext.isPresent && colorSettings.fadePastDates) {
     const brightness = typeof colorSettings.fadePastDates === "number" ? colorSettings.fadePastDates : DEFAULT_FADE_BRIGHTNESS;
-    square.style.filter = `brightness(${brightness})`;
+    tile.style.filter = `brightness(${brightness})`;
   }
-  square.setAttribute("data-date", dateToDraw.toDateString());
-  if (overwrites.note) square.setAttribute("data-note", overwrites.note);
-  square.addEventListener("mouseover", showDateTooltip);
-  square.addEventListener("mouseout", hideDateTooltip);
-  dayClasses.forEach((c) => square.classList.add(c));
-  return square;
+  tile.setAttribute("data-date", dateToDraw.toDateString());
+  if (overwrites.note) tile.setAttribute("data-note", overwrites.note);
+  tile.addEventListener("mouseover", showDateTooltip);
+  tile.addEventListener("mouseout", hideDateTooltip);
+  dayClasses.forEach((c) => tile.classList.add(c));
+  return tile;
 }
 var MONTH_NAMES = [
   "Jan",
@@ -254,6 +277,7 @@ function drawCalendar(svgElement, settings) {
     startDayOfWeek,
     showLabels,
     labelWidth,
+    shape,
     events,
     startDate: begin,
     endDate: end,
@@ -310,7 +334,7 @@ function drawCalendar(svgElement, settings) {
   let offsetX = 0;
   if (showLabels) {
     const labelEls = labels.map(({ row: r, text }) => {
-      const el = document.createElementNS(SVG_NS, "text");
+      const el = document.createElementNS(SVG_NS2, "text");
       el.setAttribute("x", "0");
       el.setAttribute("y", String(r * (squareSize + gap) + squareSize * 0.7));
       el.setAttribute("class", ROW_LABEL_CLASS);
@@ -327,10 +351,11 @@ function drawCalendar(svgElement, settings) {
   }
   for (const { date, row: r, col: c } of cells) {
     svgElement.appendChild(
-      drawDateSquare(date, {
+      drawDateTile(date, {
         x: offsetX + c * (squareSize + gap),
         y: r * (squareSize + gap),
         size: squareSize,
+        shape,
         overwrites: getEvent(date, events),
         colorSettings
       })
@@ -423,6 +448,7 @@ export {
   BaseCalendarSettings,
   Daytiles,
   Layout,
-  PastMode
+  PastMode,
+  Shape
 };
 //# sourceMappingURL=index.js.map

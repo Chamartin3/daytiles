@@ -1,5 +1,6 @@
 import type { ColorSettings } from "./colors.js";
 import type { DateInput, EventsDict } from "./dates.js";
+import { Shape } from "./shapes.js";
 export declare enum Layout {
     Month = "month",
     Week = "week",
@@ -22,6 +23,7 @@ export interface CalendarSettings {
     daysPerRow: number;
     showLabels: boolean;
     labelWidth: number;
+    shape: Shape;
     events: EventsDict;
     colors: ColorSettings;
 }
