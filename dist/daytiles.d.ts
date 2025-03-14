@@ -1,0 +1,31 @@
+import { type CalendarSettings } from "./settings.js";
+import type { DateInput } from "./dates.js";
+import type { ColorSettings } from "./colors.js";
+export type DaytilesEventId = string;
+export interface DaytilesEventInput {
+    start: DateInput;
+    end?: DateInput;
+    color?: string;
+    note?: string;
+}
+export interface DaytilesEvent extends DaytilesEventInput {
+    id: DaytilesEventId;
+}
+export interface DaytilesOptions extends Partial<Omit<CalendarSettings, "colors" | "events">> {
+    colors?: Partial<ColorSettings>;
+}
+export declare class Daytiles {
+    private settings;
+    private readonly events;
+    constructor(options?: DaytilesOptions);
+    update(options: DaytilesOptions): void;
+    addEvent(event: DaytilesEventInput): DaytilesEventId;
+    removeEvent(id: DaytilesEventId): boolean;
+    clearEvents(): void;
+    listEvents(): DaytilesEvent[];
+    getSettings(): CalendarSettings;
+    render(svgElement: SVGSVGElement): void;
+    private mergeSettings;
+    private flattenEvents;
+}
+//# sourceMappingURL=daytiles.d.ts.map
