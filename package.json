@@ -16,10 +16,13 @@
     "src"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "npm run clean && npm run build:js && npm run build:types",
+    "build:js": "esbuild src/index.ts --bundle --format=esm --target=es2022 --sourcemap --outfile=dist/index.js",
+    "build:types": "tsc --emitDeclarationOnly --declaration --outDir dist",
     "clean": "rm -rf dist"
   },
   "devDependencies": {
+    "esbuild": "^0.28.0",
     "typescript": "^5.4.0"
   },
   "license": "MIT"

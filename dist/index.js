@@ -1,3 +1,428 @@
-export { Daytiles } from "./daytiles.js";
-export { BaseCalendarSettings, Layout, PastMode } from "./settings.js";
+// src/colors.ts
+var DATE_BOX_CLASS = "dateBox";
+var FUTURE_DAY_CLASS = "future-day";
+var PRESENT_DAY_CLASS = "present-day";
+var PAST_DAY_CLASS = "past-day";
+function getColor(dateContext, colorSettings) {
+  const {
+    current: currentColor,
+    pastDay: pastDayColor,
+    futureDay: futureDayColor,
+    alternateMonths,
+    alternateMonthColor,
+    solidPastColor: solidPast
+  } = colorSettings;
+  const weekdayColors = colorSettings.highlight?.weekdays ?? {};
+  const monthColors = colorSettings.highlight?.months ?? {};
+  const highlightCurrent = colorSettings.highlightCurrent !== false;
+  if (highlightCurrent && dateContext.isPresent) return currentColor;
+  if (solidPast && dateContext.isPast && !dateContext.isPresent) return pastDayColor;
+  const weekdayMatch = weekdayColors[dateContext.dayOfWeek];
+  if (weekdayMatch) return weekdayMatch;
+  const monthMatch = monthColors[dateContext.month];
+  if (monthMatch) return monthMatch;
+  if (alternateMonths && dateContext.month % 2 === 0) {
+    return alternateMonthColor;
+  }
+  return futureDayColor;
+}
+function getClasses(ctx) {
+  const classList = [DATE_BOX_CLASS];
+  if (ctx.isFuture) classList.push(FUTURE_DAY_CLASS);
+  if (ctx.isPresent) {
+    classList.push(PRESENT_DAY_CLASS);
+  } else if (ctx.isPast) {
+    classList.push(PAST_DAY_CLASS);
+  }
+  return classList;
+}
+
+// src/dates.ts
+function stringToDate(datestring, year, last = false) {
+  const [month, day] = datestring.split("-");
+  const monthNum = parseInt(month ?? "1");
+  const dayNum = parseInt(day ?? "") || !last ? 1 : null;
+  if (dayNum) {
+    return new Date(year, monthNum - 1, dayNum);
+  }
+  return new Date(year, monthNum, 0);
+}
+function toDate(value, fallbackYear, last) {
+  if (value instanceof Date) return new Date(value);
+  if (typeof value === "string") {
+    const parts = value.split("-");
+    if (parts.length === 3) {
+      const [y, m, d] = parts.map((n) => parseInt(n));
+      return new Date(y, (m ?? 1) - 1, d ?? 1);
+    }
+    return stringToDate(value, fallbackYear, last);
+  }
+  throw new Error("Unsupported date value");
+}
+function getRangeDates(initial, final, year = null) {
+  const dateYear = year ?? (/* @__PURE__ */ new Date()).getFullYear();
+  return {
+    startDate: toDate(initial, dateYear, false),
+    endDate: toDate(final, dateYear, true)
+  };
+}
+function getEvent(date, events) {
+  const formattedDate = date.toLocaleDateString("en-US", {
+    month: "2-digit",
+    day: "2-digit"
+  }).replace("/", "-");
+  return events[formattedDate] ?? {};
+}
+function getDateContext(date, today = /* @__PURE__ */ new Date()) {
+  return {
+    isPresent: date.toDateString() === today.toDateString(),
+    isPast: date < today,
+    isFuture: date > today,
+    dayOfWeek: date.getDay(),
+    month: date.getMonth()
+  };
+}
+
+// src/settings.ts
+var Layout = /* @__PURE__ */ ((Layout2) => {
+  Layout2["Month"] = "month";
+  Layout2["Week"] = "week";
+  Layout2["Weekday"] = "weekday";
+  Layout2["Custom"] = "custom";
+  return Layout2;
+})(Layout || {});
+var PastMode = /* @__PURE__ */ ((PastMode2) => {
+  PastMode2["None"] = "none";
+  PastMode2["Fade"] = "fade";
+  PastMode2["Solid"] = "solid";
+  return PastMode2;
+})(PastMode || {});
+var BaseCalendarSettings = {
+  layout: "weekday" /* Weekday */,
+  startDate: "03-01",
+  endDate: "06",
+  year: null,
+  daySize: 16,
+  gap: 4,
+  startDayOfWeek: 1,
+  daysPerRow: 21,
+  showLabels: false,
+  labelWidth: 56,
+  events: {},
+  colors: {
+    current: "#FFD700",
+    fadePastDates: true,
+    pastDay: "#555",
+    futureDay: "#eee",
+    alternateMonths: true,
+    alternateMonthColor: "#d2f0fa",
+    highlight: {
+      weekdays: {
+        0: "#BAFFC9",
+        6: "#BAFFC9"
+      },
+      months: {}
+    }
+  }
+};
+
+// src/tooltip.ts
+var TOOLTIP_ID = "daytiles-tooltip";
+var TOOLTIP_CLASS = "tooltip-box";
+var DATA_DATE_ATTR = "data-date";
+var DATA_NOTE_ATTR = "data-note";
+function ensureTooltip() {
+  let el = document.getElementById(TOOLTIP_ID);
+  if (!el) {
+    el = document.createElement("div");
+    el.id = TOOLTIP_ID;
+    el.className = TOOLTIP_CLASS;
+    Object.assign(el.style, {
+      position: "fixed",
+      pointerEvents: "none",
+      zIndex: "9999",
+      display: "none",
+      background: "#222",
+      color: "#fff",
+      border: "1px solid #000",
+      borderRadius: "5px",
+      padding: "4px 8px",
+      fontFamily: "Arial, sans-serif",
+      fontSize: "12px",
+      whiteSpace: "nowrap",
+      boxShadow: "0 2px 6px rgba(0,0,0,0.25)"
+    });
+    document.body.appendChild(el);
+  }
+  return el;
+}
+function showDateTooltip(event) {
+  const target = event.target;
+  const date = target.getAttribute(DATA_DATE_ATTR);
+  const note = target.getAttribute(DATA_NOTE_ATTR);
+  const el = ensureTooltip();
+  el.innerHTML = "";
+  const dateLine = document.createElement("div");
+  dateLine.textContent = date;
+  el.appendChild(dateLine);
+  if (note) {
+    const noteLine = document.createElement("div");
+    noteLine.textContent = note;
+    noteLine.style.opacity = "0.85";
+    noteLine.style.fontStyle = "italic";
+    noteLine.style.marginTop = "2px";
+    el.appendChild(noteLine);
+  }
+  el.style.display = "block";
+  const rect = target.getBoundingClientRect();
+  el.style.left = `${rect.right + 8}px`;
+  el.style.top = `${rect.top}px`;
+}
+function hideDateTooltip() {
+  const el = document.getElementById(TOOLTIP_ID);
+  if (el) el.style.display = "none";
+}
+
+// src/draw.ts
+var SVG_NS = "http://www.w3.org/2000/svg";
+var DEFAULT_FADE_BRIGHTNESS = 0.6;
+var ROW_LABEL_CLASS = "row-label";
+var ROW_LABEL_GAP = 8;
+function drawDateSquare(dateToDraw, { x, y, size, overwrites, colorSettings }) {
+  const dateContext = getDateContext(dateToDraw);
+  const square = document.createElementNS(SVG_NS, "rect");
+  const dayColor = overwrites.color || getColor(dateContext, colorSettings);
+  const dayClasses = getClasses(dateContext);
+  square.setAttribute("x", String(x));
+  square.setAttribute("y", String(y));
+  square.setAttribute("width", String(size));
+  square.setAttribute("height", String(size));
+  square.setAttribute("fill", dayColor);
+  if (dateContext.isPast && !dateContext.isPresent && colorSettings.fadePastDates) {
+    const brightness = typeof colorSettings.fadePastDates === "number" ? colorSettings.fadePastDates : DEFAULT_FADE_BRIGHTNESS;
+    square.style.filter = `brightness(${brightness})`;
+  }
+  square.setAttribute("data-date", dateToDraw.toDateString());
+  if (overwrites.note) square.setAttribute("data-note", overwrites.note);
+  square.addEventListener("mouseover", showDateTooltip);
+  square.addEventListener("mouseout", hideDateTooltip);
+  dayClasses.forEach((c) => square.classList.add(c));
+  return square;
+}
+var MONTH_NAMES = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec"
+];
+var DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+function isoWeek(date) {
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const day = d.getUTCDay() || 7;
+  d.setUTCDate(d.getUTCDate() + 4 - day);
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  return Math.ceil(((d.getTime() - yearStart.getTime()) / 864e5 + 1) / 7);
+}
+function rowLabel(layout, date, rowIndex, daysPerRow) {
+  switch (layout) {
+    case "month" /* Month */:
+      return `${MONTH_NAMES[date.getMonth()]} ${date.getFullYear()}`;
+    case "week" /* Week */:
+      return `W${isoWeek(date)}`;
+    case "weekday" /* Weekday */:
+      return DAY_NAMES[date.getDay()] ?? "";
+    case "custom" /* Custom */:
+      return `${rowIndex * daysPerRow + 1}`;
+    default:
+      return "";
+  }
+}
+function drawCalendar(svgElement, settings) {
+  const {
+    layout,
+    daysPerRow,
+    daySize: squareSize,
+    gap,
+    startDayOfWeek,
+    showLabels,
+    labelWidth,
+    events,
+    startDate: begin,
+    endDate: end,
+    year,
+    colors: colorSettings
+  } = settings;
+  svgElement.innerHTML = "";
+  const { startDate, endDate } = getRangeDates(begin, end, year);
+  const currentDate = new Date(startDate);
+  let row = 0;
+  let col = 0;
+  let dayIndex = 0;
+  const adjustedColumn = (date) => (7 + date.getDay() - startDayOfWeek) % 7;
+  const cells = [];
+  const labels = [];
+  const labeledRows = /* @__PURE__ */ new Set();
+  while (currentDate <= endDate) {
+    let newRow = false;
+    switch (layout) {
+      case "week" /* Week */:
+        col = adjustedColumn(currentDate);
+        newRow = col === 0 && currentDate > startDate;
+        break;
+      case "weekday" /* Weekday */:
+        row = adjustedColumn(currentDate);
+        newRow = true;
+        if (row === 0) col++;
+        break;
+      case "month" /* Month */:
+        if (currentDate.getDate() === 1 || currentDate.getTime() === startDate.getTime()) {
+          col = adjustedColumn(currentDate);
+          newRow = true;
+        } else {
+          col++;
+        }
+        break;
+      case "custom" /* Custom */:
+        col = dayIndex % daysPerRow;
+        newRow = col === 0 && dayIndex !== 0;
+        dayIndex++;
+        break;
+    }
+    if (newRow) row++;
+    if (showLabels && !labeledRows.has(row)) {
+      labeledRows.add(row);
+      labels.push({
+        row,
+        text: rowLabel(layout, currentDate, row, daysPerRow)
+      });
+    }
+    cells.push({ date: new Date(currentDate), row, col });
+    currentDate.setDate(currentDate.getDate() + 1);
+  }
+  let offsetX = 0;
+  if (showLabels) {
+    const labelEls = labels.map(({ row: r, text }) => {
+      const el = document.createElementNS(SVG_NS, "text");
+      el.setAttribute("x", "0");
+      el.setAttribute("y", String(r * (squareSize + gap) + squareSize * 0.7));
+      el.setAttribute("class", ROW_LABEL_CLASS);
+      el.textContent = text;
+      svgElement.appendChild(el);
+      return el;
+    });
+    let maxWidth = labelWidth;
+    for (const el of labelEls) {
+      const w = el.getBBox().width;
+      if (w > maxWidth) maxWidth = w;
+    }
+    offsetX = maxWidth + ROW_LABEL_GAP;
+  }
+  for (const { date, row: r, col: c } of cells) {
+    svgElement.appendChild(
+      drawDateSquare(date, {
+        x: offsetX + c * (squareSize + gap),
+        y: r * (squareSize + gap),
+        size: squareSize,
+        overwrites: getEvent(date, events),
+        colorSettings
+      })
+    );
+  }
+}
+
+// src/daytiles.ts
+var MS_PER_DAY = 864e5;
+function toDate2(value) {
+  if (value instanceof Date) return new Date(value);
+  const parts = value.split("-").map((n) => parseInt(n, 10));
+  if (parts.length === 3) {
+    const [y, m, d] = parts;
+    return new Date(y, (m ?? 1) - 1, d ?? 1);
+  }
+  throw new Error(`Unsupported date value: ${value}`);
+}
+function monthDayKey(date) {
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${m}-${d}`;
+}
+function generateId() {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
+    return crypto.randomUUID();
+  }
+  return `evt_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
+}
+var Daytiles = class {
+  settings;
+  events = /* @__PURE__ */ new Map();
+  constructor(options = {}) {
+    this.settings = this.mergeSettings(BaseCalendarSettings, options);
+  }
+  update(options) {
+    this.settings = this.mergeSettings(this.settings, options);
+  }
+  addEvent(event) {
+    const id = generateId();
+    this.events.set(id, { ...event, id });
+    return id;
+  }
+  removeEvent(id) {
+    return this.events.delete(id);
+  }
+  clearEvents() {
+    this.events.clear();
+  }
+  listEvents() {
+    return Array.from(this.events.values());
+  }
+  getSettings() {
+    return this.settings;
+  }
+  render(svgElement) {
+    const events = this.flattenEvents();
+    drawCalendar(svgElement, { ...this.settings, events });
+  }
+  mergeSettings(base, overrides) {
+    const { colors, ...rest } = overrides;
+    return {
+      ...base,
+      ...rest,
+      colors: { ...base.colors, ...colors ?? {} },
+      events: {}
+    };
+  }
+  flattenEvents() {
+    const out = {};
+    for (const entry of this.events.values()) {
+      const start = toDate2(entry.start);
+      const end = entry.end ? toDate2(entry.end) : start;
+      const cursor = new Date(start);
+      while (cursor.getTime() <= end.getTime()) {
+        const key = monthDayKey(cursor);
+        const note = entry.note ?? key;
+        const existing = out[key];
+        out[key] = {
+          color: entry.color ?? existing?.color,
+          note: existing?.note ? `${existing.note} \u2022 ${note}` : note
+        };
+        cursor.setTime(cursor.getTime() + MS_PER_DAY);
+      }
+    }
+    return out;
+  }
+};
+export {
+  BaseCalendarSettings,
+  Daytiles,
+  Layout,
+  PastMode
+};
 //# sourceMappingURL=index.js.map
