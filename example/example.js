@@ -1,34 +1,21 @@
-import { BaseCalendarSettings, drawCalendar } from "../src/index.js";
+import { Daytiles, Layout, PastMode } from "../dist/index.js";
+
+const PRESET_MONTH = "month";
+const PRESET_QUARTER = "quarter";
+const PRESET_YEAR = "year";
+
+const SUNDAY = 0;
+const SATURDAY = 6;
 
 const svg = document.getElementById("calendar");
-const eventEntries = [];
-const events = {};
+const dt = new Daytiles();
+const eventIdsByButton = new Map();
 
-function isoDateOnly(d) {
+function isoDate(d) {
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, "0");
   const day = String(d.getDate()).padStart(2, "0");
   return `${y}-${m}-${day}`;
-}
-
-function rebuildEvents() {
-  for (const k of Object.keys(events)) delete events[k];
-  for (const entry of eventEntries) {
-    const cursor = new Date(entry.start);
-    const end = new Date(entry.end);
-    while (cursor <= end) {
-      const month = String(cursor.getMonth() + 1).padStart(2, "0");
-      const day = String(cursor.getDate()).padStart(2, "0");
-      const key = `${month}-${day}`;
-      const note = entry.note || key;
-      const existing = events[key];
-      events[key] = {
-        color: entry.color,
-        note: existing?.note ? `${existing.note} • ${note}` : note,
-      };
-      cursor.setDate(cursor.getDate() + 1);
-    }
-  }
 }
 
 const $ = (id) => document.getElementById(id);
@@ -52,12 +39,11 @@ const inputs = {
   showLabels: $("showLabels"),
 };
 
-function buildSettings() {
+function applySettings() {
   const weekdays = inputs.highlightWeekend.checked
-    ? { 0: inputs.colorWeekend.value, 6: inputs.colorWeekend.value }
+    ? { [SUNDAY]: inputs.colorWeekend.value, [SATURDAY]: inputs.colorWeekend.value }
     : {};
-  return {
-    ...BaseCalendarSettings,
+  dt.update({
     layout: inputs.layout.value,
     startDate: inputs.startDate.value,
     endDate: inputs.endDate.value,
@@ -66,7 +52,6 @@ function buildSettings() {
     daysPerRow: parseInt(inputs.daysPerRow.value) || 21,
     startDayOfWeek: parseInt(inputs.startDayOfWeek.value),
     showLabels: inputs.showLabels.checked,
-    events: { ...events },
     colors: {
       current: inputs.colorCurrent.value,
       pastDay: inputs.colorPast.value,
@@ -74,20 +59,19 @@ function buildSettings() {
       alternateMonths: inputs.alternateMonths.checked,
       alternateMonthColor: inputs.colorAlt.value,
       highlightCurrent: inputs.highlightCurrent.checked,
-      fadePastDates: inputs.pastMode.value === "fade",
-      solidPastColor: inputs.pastMode.value === "solid",
+      fadePastDates: inputs.pastMode.value === PastMode.Fade,
+      solidPastColor: inputs.pastMode.value === PastMode.Solid,
       highlight: { weekdays, months: {} },
     },
-  };
+  });
 }
 
 function render() {
-  drawCalendar(svg, buildSettings());
+  applySettings();
+  dt.render(svg);
   const bbox = svg.getBBox();
-  const w = Math.ceil(bbox.x + bbox.width);
-  const h = Math.ceil(bbox.y + bbox.height);
-  svg.setAttribute("width", w);
-  svg.setAttribute("height", h);
+  svg.setAttribute("width", Math.ceil(bbox.x + bbox.width));
+  svg.setAttribute("height", Math.ceil(bbox.y + bbox.height));
 }
 
 Object.values(inputs).forEach((el) => {
@@ -103,7 +87,8 @@ const eventNoteInput = document.getElementById("eventNote");
 
 function refreshEventList() {
   eventList.innerHTML = "";
-  for (const entry of eventEntries) {
+  eventIdsByButton.clear();
+  for (const entry of dt.listEvents()) {
     const li = document.createElement("li");
 
     const swatch = document.createElement("span");
@@ -111,9 +96,7 @@ function refreshEventList() {
     swatch.style.background = entry.color;
 
     const range =
-      entry.start === entry.end
-        ? entry.start
-        : `${entry.start} → ${entry.end}`;
+      entry.start === entry.end ? entry.start : `${entry.start} → ${entry.end}`;
     const label = document.createElement("span");
     label.textContent = `${range}${entry.note ? ` — ${entry.note}` : ""}`;
 
@@ -121,10 +104,10 @@ function refreshEventList() {
     remove.className = "remove";
     remove.type = "button";
     remove.textContent = "✕";
+    eventIdsByButton.set(remove, entry.id);
     remove.addEventListener("click", () => {
-      const idx = eventEntries.indexOf(entry);
-      if (idx >= 0) eventEntries.splice(idx, 1);
-      rebuildEvents();
+      const id = eventIdsByButton.get(remove);
+      if (id) dt.removeEvent(id);
       refreshEventList();
       render();
     });
@@ -134,31 +117,27 @@ function refreshEventList() {
   }
 }
 
-function isoDate(d) {
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-}
-
 function applyPreset(name) {
   const today = new Date();
+  const year = today.getFullYear();
   let start, end;
   switch (name) {
-    case "month":
-      start = new Date(today.getFullYear(), today.getMonth(), 1);
-      end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+    case PRESET_MONTH:
+      start = new Date(year, today.getMonth(), 1);
+      end = new Date(year, today.getMonth() + 1, 0);
       break;
-    case "quarter": {
+    case PRESET_QUARTER: {
       const q = Math.floor(today.getMonth() / 3);
-      start = new Date(today.getFullYear(), q * 3, 1);
-      end = new Date(today.getFullYear(), q * 3 + 3, 0);
+      start = new Date(year, q * 3, 1);
+      end = new Date(year, q * 3 + 3, 0);
       break;
     }
-    case "year":
-      start = new Date(today.getFullYear(), 0, 1);
-      end = new Date(today.getFullYear(), 11, 31);
+    case PRESET_YEAR:
+      start = new Date(year, 0, 1);
+      end = new Date(year, 11, 31);
       break;
+    default:
+      return;
   }
   inputs.startDate.value = isoDate(start);
   inputs.endDate.value = isoDate(end);
@@ -176,19 +155,16 @@ document.getElementById("addEvent").addEventListener("click", () => {
     return;
   }
   const end = eventEndInput.value || start;
-  const startDate = new Date(start);
-  const endDate = new Date(end);
-  if (endDate < startDate) {
+  if (new Date(end) < new Date(start)) {
     alert("End date must be on or after start date");
     return;
   }
-  eventEntries.push({
-    start: isoDateOnly(startDate),
-    end: isoDateOnly(endDate),
+  dt.addEvent({
+    start,
+    end,
     color: eventColorInput.value,
     note: eventNoteInput.value,
   });
-  rebuildEvents();
   eventStartInput.value = "";
   eventEndInput.value = "";
   eventNoteInput.value = "";

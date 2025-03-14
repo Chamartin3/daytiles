@@ -18,8 +18,8 @@
       height="100%"
     ></svg>
     <script type="module">
-      import { BaseCalendarSettings, drawCalendar } from "./src/index.js";
-      drawCalendar(document.getElementById("calendar"), BaseCalendarSettings);
+      import { Daytiles } from "./dist/index.js";
+      new Daytiles().render(document.getElementById("calendar"));
     </script>
   </body>
 </html>
