@@ -175,6 +175,7 @@ var BaseCalendarSettings = {
     futureDay: "#eee",
     alternateMonths: true,
     alternateMonthColor: "#d2f0fa",
+    defaultEventColor: "#ff5577",
     highlight: {
       weekdays: {
         0: "#BAFFC9",
@@ -444,7 +445,7 @@ var Daytiles = class {
     return this.settings;
   }
   render(svgElement) {
-    const events = this.flattenEvents();
+    const events = this.flattenEvents(this.settings.colors.defaultEventColor);
     drawCalendar(svgElement, { ...this.settings, events });
   }
   mergeSettings(base, overrides) {
@@ -456,18 +457,19 @@ var Daytiles = class {
       events: {}
     };
   }
-  flattenEvents() {
+  flattenEvents(defaultColor) {
     const out = {};
     for (const entry of this.events.values()) {
       const start = toDate2(entry.start);
       const end = entry.end ? toDate2(entry.end) : start;
       const cursor = new Date(start);
+      const color = entry.color ?? defaultColor;
       while (cursor.getTime() <= end.getTime()) {
         const key = monthDayKey(cursor);
         const note = entry.note ?? key;
         const existing = out[key];
         out[key] = {
-          color: entry.color ?? existing?.color,
+          color: existing?.color ?? color,
           note: existing?.note ? `${existing.note} \u2022 ${note}` : note
         };
         cursor.setTime(cursor.getTime() + MS_PER_DAY);

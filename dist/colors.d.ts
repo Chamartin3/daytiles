@@ -9,6 +9,7 @@ export interface ColorSettings {
     futureDay: string;
     alternateMonths: boolean;
     alternateMonthColor: string;
+    defaultEventColor: string;
     highlightCurrent?: boolean;
     fadePastDates?: boolean | number;
     solidPastColor?: boolean;

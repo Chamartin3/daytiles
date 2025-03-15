@@ -84,7 +84,7 @@ export class Daytiles {
   }
 
   render(svgElement: SVGSVGElement): void {
-    const events = this.flattenEvents();
+    const events = this.flattenEvents(this.settings.colors.defaultEventColor);
     drawCalendar(svgElement, { ...this.settings, events });
   }
 
@@ -101,18 +101,19 @@ export class Daytiles {
     };
   }
 
-  private flattenEvents(): EventsDict {
+  private flattenEvents(defaultColor: string): EventsDict {
     const out: EventsDict = {};
     for (const entry of this.events.values()) {
       const start = toDate(entry.start);
       const end = entry.end ? toDate(entry.end) : start;
       const cursor = new Date(start);
+      const color = entry.color ?? defaultColor;
       while (cursor.getTime() <= end.getTime()) {
         const key = monthDayKey(cursor);
         const note = entry.note ?? key;
         const existing = out[key];
         out[key] = {
-          color: entry.color ?? existing?.color,
+          color: existing?.color ?? color,
           note: existing?.note ? `${existing.note} • ${note}` : note,
         };
         cursor.setTime(cursor.getTime() + MS_PER_DAY);

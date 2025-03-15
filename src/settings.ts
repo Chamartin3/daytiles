@@ -51,6 +51,7 @@ export const BaseCalendarSettings: CalendarSettings = {
     futureDay: "#eee",
     alternateMonths: true,
     alternateMonthColor: "#d2f0fa",
+    defaultEventColor: "#ff5577",
     highlight: {
       weekdays: {
         0: "#BAFFC9",
