@@ -1,4 +1,4 @@
-import { Daytiles, Layout, PastMode } from "../dist/index.js";
+import { Daytiles, Layout, PastMode, Shape } from "../dist/index.js";
 
 const PRESET_MONTH = "month";
 const PRESET_QUARTER = "quarter";
@@ -32,6 +32,7 @@ const inputs = {
   colorFuture: $("colorFuture"),
   colorAlt: $("colorAlt"),
   colorWeekend: $("colorWeekend"),
+  shape: $("shape"),
   pastMode: $("pastMode"),
   highlightCurrent: $("highlightCurrent"),
   alternateMonths: $("alternateMonths"),
@@ -52,6 +53,7 @@ function applySettings() {
     daysPerRow: parseInt(inputs.daysPerRow.value) || 21,
     startDayOfWeek: parseInt(inputs.startDayOfWeek.value),
     showLabels: inputs.showLabels.checked,
+    shape: inputs.shape.value,
     colors: {
       current: inputs.colorCurrent.value,
       pastDay: inputs.colorPast.value,
