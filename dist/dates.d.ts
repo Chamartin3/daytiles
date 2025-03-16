@@ -4,6 +4,8 @@ export interface DateContext {
     isFuture: boolean;
     dayOfWeek: number;
     month: number;
+    dayOfYear: number;
+    weekOfYear: number;
 }
 export type EventInfo = {
     color?: string;

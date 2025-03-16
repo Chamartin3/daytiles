@@ -1,4 +1,5 @@
 import type { DateContext } from "./dates.js";
+import { type AlternationSettings } from "./alternation.js";
 export interface ColorHighlights {
     weekdays?: Record<number, string>;
     months?: Record<number, string>;
@@ -7,8 +8,7 @@ export interface ColorSettings {
     current: string;
     pastDay: string;
     futureDay: string;
-    alternateMonths: boolean;
-    alternateMonthColor: string;
+    alternation: AlternationSettings;
     defaultEventColor: string;
     highlightCurrent?: boolean;
     fadePastDates?: boolean | number;

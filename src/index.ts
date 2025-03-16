@@ -8,6 +8,8 @@ export type {
 export { BaseCalendarSettings, Layout, PastMode } from "./settings.js";
 export type { CalendarSettings } from "./settings.js";
 export { Shape } from "./shapes.js";
+export { AlternationMode } from "./alternation.js";
+export type { AlternationSettings } from "./alternation.js";
 export type {
   DateContext,
   DateInput,

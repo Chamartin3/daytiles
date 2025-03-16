@@ -1,6 +1,7 @@
 import type { ColorSettings } from "./colors.js";
 import type { DateInput, EventsDict } from "./dates.js";
 import { Shape } from "./shapes.js";
+import { AlternationMode } from "./alternation.js";
 
 export enum Layout {
   Month = "month",
@@ -49,8 +50,11 @@ export const BaseCalendarSettings: CalendarSettings = {
     fadePastDates: true,
     pastDay: "#555",
     futureDay: "#eee",
-    alternateMonths: true,
-    alternateMonthColor: "#d2f0fa",
+    alternation: {
+      mode: AlternationMode.Month,
+      color: "#d2f0fa",
+      size: 7,
+    },
     defaultEventColor: "#ff5577",
     highlight: {
       weekdays: {

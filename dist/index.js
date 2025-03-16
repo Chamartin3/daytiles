@@ -1,3 +1,33 @@
+// src/alternation.ts
+var AlternationMode = /* @__PURE__ */ ((AlternationMode3) => {
+  AlternationMode3["None"] = "none";
+  AlternationMode3["Day"] = "day";
+  AlternationMode3["Week"] = "week";
+  AlternationMode3["Month"] = "month";
+  AlternationMode3["Custom"] = "custom";
+  return AlternationMode3;
+})(AlternationMode || {});
+function alternationBucket(ctx, mode, size) {
+  switch (mode) {
+    case "day" /* Day */:
+      return ctx.dayOfYear;
+    case "week" /* Week */:
+      return ctx.weekOfYear;
+    case "month" /* Month */:
+      return ctx.month;
+    case "custom" /* Custom */:
+      return Math.floor(ctx.dayOfYear / Math.max(1, size));
+    case "none" /* None */:
+    default:
+      return -1;
+  }
+}
+function shouldAlternate(ctx, alternation) {
+  if (alternation.mode === "none" /* None */) return false;
+  const bucket = alternationBucket(ctx, alternation.mode, alternation.size);
+  return bucket >= 0 && bucket % 2 === 0;
+}
+
 // src/colors.ts
 var DATE_BOX_CLASS = "dateBox";
 var FUTURE_DAY_CLASS = "future-day";
@@ -8,8 +38,7 @@ function getColor(dateContext, colorSettings) {
     current: currentColor,
     pastDay: pastDayColor,
     futureDay: futureDayColor,
-    alternateMonths,
-    alternateMonthColor,
+    alternation,
     solidPastColor: solidPast
   } = colorSettings;
   const weekdayColors = colorSettings.highlight?.weekdays ?? {};
@@ -21,8 +50,8 @@ function getColor(dateContext, colorSettings) {
   if (weekdayMatch) return weekdayMatch;
   const monthMatch = monthColors[dateContext.month];
   if (monthMatch) return monthMatch;
-  if (alternateMonths && dateContext.month % 2 === 0) {
-    return alternateMonthColor;
+  if (shouldAlternate(dateContext, alternation)) {
+    return alternation.color;
   }
   return futureDayColor;
 }
@@ -73,13 +102,27 @@ function getEvent(date, events) {
   }).replace("/", "-");
   return events[formattedDate] ?? {};
 }
+var MS_PER_DAY = 864e5;
+function dayOfYear(date) {
+  const start = new Date(date.getFullYear(), 0, 1);
+  return Math.floor((date.getTime() - start.getTime()) / MS_PER_DAY);
+}
+function isoWeekOfYear(date) {
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const day = d.getUTCDay() || 7;
+  d.setUTCDate(d.getUTCDate() + 4 - day);
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  return Math.ceil(((d.getTime() - yearStart.getTime()) / MS_PER_DAY + 1) / 7);
+}
 function getDateContext(date, today = /* @__PURE__ */ new Date()) {
   return {
     isPresent: date.toDateString() === today.toDateString(),
     isPast: date < today,
     isFuture: date > today,
     dayOfWeek: date.getDay(),
-    month: date.getMonth()
+    month: date.getMonth(),
+    dayOfYear: dayOfYear(date),
+    weekOfYear: isoWeekOfYear(date)
   };
 }
 
@@ -173,8 +216,11 @@ var BaseCalendarSettings = {
     fadePastDates: true,
     pastDay: "#555",
     futureDay: "#eee",
-    alternateMonths: true,
-    alternateMonthColor: "#d2f0fa",
+    alternation: {
+      mode: "month" /* Month */,
+      color: "#d2f0fa",
+      size: 7
+    },
     defaultEventColor: "#ff5577",
     highlight: {
       weekdays: {
@@ -397,7 +443,7 @@ function drawCalendar(svgElement, settings) {
 }
 
 // src/daytiles.ts
-var MS_PER_DAY = 864e5;
+var MS_PER_DAY2 = 864e5;
 function toDate2(value) {
   if (value instanceof Date) return new Date(value);
   const parts = value.split("-").map((n) => parseInt(n, 10));
@@ -472,13 +518,14 @@ var Daytiles = class {
           color: existing?.color ?? color,
           note: existing?.note ? `${existing.note} \u2022 ${note}` : note
         };
-        cursor.setTime(cursor.getTime() + MS_PER_DAY);
+        cursor.setTime(cursor.getTime() + MS_PER_DAY2);
       }
     }
     return out;
   }
 };
 export {
+  AlternationMode,
   BaseCalendarSettings,
   Daytiles,
   Layout,

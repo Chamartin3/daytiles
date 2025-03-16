@@ -4,6 +4,8 @@ export interface DateContext {
   isFuture: boolean;
   dayOfWeek: number;
   month: number;
+  dayOfYear: number;
+  weekOfYear: number;
 }
 
 export type EventInfo = { color?: string; note?: string };
@@ -61,6 +63,21 @@ export function getEvent(date: Date, events: EventsDict): EventInfo {
   return events[formattedDate] ?? {};
 }
 
+const MS_PER_DAY = 86_400_000;
+
+function dayOfYear(date: Date): number {
+  const start = new Date(date.getFullYear(), 0, 1);
+  return Math.floor((date.getTime() - start.getTime()) / MS_PER_DAY);
+}
+
+function isoWeekOfYear(date: Date): number {
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const day = d.getUTCDay() || 7;
+  d.setUTCDate(d.getUTCDate() + 4 - day);
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  return Math.ceil(((d.getTime() - yearStart.getTime()) / MS_PER_DAY + 1) / 7);
+}
+
 export function getDateContext(date: Date, today: Date = new Date()): DateContext {
   return {
     isPresent: date.toDateString() === today.toDateString(),
@@ -68,5 +85,7 @@ export function getDateContext(date: Date, today: Date = new Date()): DateContex
     isFuture: date > today,
     dayOfWeek: date.getDay(),
     month: date.getMonth(),
+    dayOfYear: dayOfYear(date),
+    weekOfYear: isoWeekOfYear(date),
   };
 }

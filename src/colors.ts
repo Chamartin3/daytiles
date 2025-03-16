@@ -1,4 +1,9 @@
 import type { DateContext } from "./dates.js";
+import {
+  AlternationMode,
+  shouldAlternate,
+  type AlternationSettings,
+} from "./alternation.js";
 
 export interface ColorHighlights {
   weekdays?: Record<number, string>;
@@ -9,8 +14,7 @@ export interface ColorSettings {
   current: string;
   pastDay: string;
   futureDay: string;
-  alternateMonths: boolean;
-  alternateMonthColor: string;
+  alternation: AlternationSettings;
   defaultEventColor: string;
   highlightCurrent?: boolean;
   fadePastDates?: boolean | number;
@@ -31,8 +35,7 @@ export function getColor(
     current: currentColor,
     pastDay: pastDayColor,
     futureDay: futureDayColor,
-    alternateMonths,
-    alternateMonthColor,
+    alternation,
     solidPastColor: solidPast,
   } = colorSettings;
   const weekdayColors = colorSettings.highlight?.weekdays ?? {};
@@ -45,8 +48,8 @@ export function getColor(
   if (weekdayMatch) return weekdayMatch;
   const monthMatch = monthColors[dateContext.month];
   if (monthMatch) return monthMatch;
-  if (alternateMonths && dateContext.month % 2 === 0) {
-    return alternateMonthColor;
+  if (shouldAlternate(dateContext, alternation)) {
+    return alternation.color;
   }
   return futureDayColor;
 }
