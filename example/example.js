@@ -35,7 +35,8 @@ const inputs = {
   shape: $("shape"),
   pastMode: $("pastMode"),
   highlightCurrent: $("highlightCurrent"),
-  alternateMonths: $("alternateMonths"),
+  alternationMode: $("alternationMode"),
+  alternationSize: $("alternationSize"),
   highlightWeekend: $("highlightWeekend"),
   showLabels: $("showLabels"),
 };
@@ -58,8 +59,11 @@ function applySettings() {
       current: inputs.colorCurrent.value,
       pastDay: inputs.colorPast.value,
       futureDay: inputs.colorFuture.value,
-      alternateMonths: inputs.alternateMonths.checked,
-      alternateMonthColor: inputs.colorAlt.value,
+      alternation: {
+        mode: inputs.alternationMode.value,
+        color: inputs.colorAlt.value,
+        size: parseInt(inputs.alternationSize.value) || 7,
+      },
       highlightCurrent: inputs.highlightCurrent.checked,
       fadePastDates: inputs.pastMode.value === PastMode.Fade,
       solidPastColor: inputs.pastMode.value === PastMode.Solid,

@@ -96,9 +96,17 @@
             <input id="highlightCurrent" type="checkbox" checked />
             Highlight today
           </label>
-          <label class="checkbox">
-            <input id="alternateMonths" type="checkbox" checked />
-            Alternate month colors
+          <label>Alternate
+            <select id="alternationMode">
+              <option value="none">None</option>
+              <option value="day">Per day</option>
+              <option value="week">Per week</option>
+              <option value="month" selected>Per month</option>
+              <option value="custom">Custom days</option>
+            </select>
+          </label>
+          <label>Custom days
+            <input id="alternationSize" type="number" value="7" min="1" max="365" />
           </label>
           <label class="checkbox">
             <input id="highlightWeekend" type="checkbox" checked />
