@@ -30,7 +30,7 @@ const inputs = {
   colorCurrent: $("colorCurrent"),
   colorPast: $("colorPast"),
   colorFuture: $("colorFuture"),
-  colorAlt: $("colorAlt"),
+  colorAlternation: $("colorAlternation"),
   colorWeekend: $("colorWeekend"),
   shape: $("shape"),
   pastMode: $("pastMode"),
@@ -61,7 +61,7 @@ function applySettings() {
       futureDay: inputs.colorFuture.value,
       alternation: {
         mode: inputs.alternationMode.value,
-        color: inputs.colorAlt.value,
+        color: inputs.colorAlternation.value,
         size: parseInt(inputs.alternationSize.value) || 7,
       },
       highlightCurrent: inputs.highlightCurrent.checked,
