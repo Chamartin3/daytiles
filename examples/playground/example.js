@@ -1,4 +1,4 @@
-import { Daytiles, Layout, PastMode, Shape } from "../dist/index.js";
+import { Daytiles, Layout, PastMode, Shape } from "../../dist/index.js";
 
 const PRESET_MONTH = "month";
 const PRESET_QUARTER = "quarter";
