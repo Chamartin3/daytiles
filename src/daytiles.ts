@@ -1,4 +1,4 @@
-import { drawCalendar } from "./draw.js";
+import { drawCalendar, type TileClickHandler } from "./draw.js";
 import {
   BaseCalendarSettings,
   type CalendarSettings,
@@ -52,6 +52,7 @@ function generateId(): DaytilesEventId {
 export class Daytiles {
   private settings: CalendarSettings;
   private readonly events: Map<DaytilesEventId, DaytilesEvent> = new Map();
+  private tileClickHandler?: TileClickHandler;
 
   constructor(options: DaytilesOptions = {}) {
     this.settings = this.mergeSettings(BaseCalendarSettings, options);
@@ -59,6 +60,10 @@ export class Daytiles {
 
   update(options: DaytilesOptions): void {
     this.settings = this.mergeSettings(this.settings, options);
+  }
+
+  onTileClick(handler: TileClickHandler | undefined): void {
+    this.tileClickHandler = handler;
   }
 
   addEvent(event: DaytilesEventInput): DaytilesEventId {
@@ -85,7 +90,11 @@ export class Daytiles {
 
   render(svgElement: SVGSVGElement): void {
     const events = this.flattenEvents(this.settings.colors.defaultEventColor);
-    drawCalendar(svgElement, { ...this.settings, events });
+    drawCalendar(
+      svgElement,
+      { ...this.settings, events },
+      this.tileClickHandler,
+    );
   }
 
   private mergeSettings(

@@ -9,6 +9,10 @@ const SATURDAY = 6;
 
 const svg = document.getElementById("calendar");
 const dt = new Daytiles();
+dt.onTileClick(({ date, event }) => {
+  const note = event.note ? ` — ${event.note}` : "";
+  console.log(`Clicked ${date.toDateString()}${note}`);
+});
 const eventIdsByButton = new Map();
 
 function isoDate(d) {

@@ -10,6 +10,7 @@ export type { CalendarSettings } from "./settings.js";
 export { Shape } from "./shapes.js";
 export { AlternationMode } from "./alternation.js";
 export type { AlternationSettings } from "./alternation.js";
+export type { TileClickEvent, TileClickHandler } from "./draw.js";
 export type {
   DateContext,
   DateInput,

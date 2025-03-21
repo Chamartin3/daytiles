@@ -14,6 +14,14 @@ const DEFAULT_FADE_BRIGHTNESS = 0.6;
 const ROW_LABEL_CLASS = "row-label";
 const ROW_LABEL_GAP = 8;
 
+export interface TileClickEvent {
+  date: Date;
+  event: EventInfo;
+  domEvent: MouseEvent;
+}
+
+export type TileClickHandler = (e: TileClickEvent) => void;
+
 interface TileOptions {
   x: number;
   y: number;
@@ -21,11 +29,12 @@ interface TileOptions {
   shape: Shape;
   overwrites: EventInfo;
   colorSettings: ColorSettings;
+  onClick?: TileClickHandler;
 }
 
 export function drawDateTile(
   dateToDraw: Date,
-  { x, y, size, shape, overwrites, colorSettings }: TileOptions,
+  { x, y, size, shape, overwrites, colorSettings, onClick }: TileOptions,
 ): SVGElement {
   const dateContext = getDateContext(dateToDraw);
   const tile = createTile(shape, x, y, size);
@@ -48,6 +57,12 @@ export function drawDateTile(
   if (overwrites.note) tile.setAttribute("data-note", overwrites.note);
   tile.addEventListener("mouseover", showDateTooltip);
   tile.addEventListener("mouseout", hideDateTooltip);
+  if (onClick) {
+    tile.style.cursor = "pointer";
+    tile.addEventListener("click", (domEvent) => {
+      onClick({ date: new Date(dateToDraw), event: overwrites, domEvent });
+    });
+  }
   dayClasses.forEach((c) => tile.classList.add(c));
 
   return tile;
@@ -96,6 +111,7 @@ interface CellPlacement {
 export function drawCalendar(
   svgElement: SVGSVGElement,
   settings: CalendarSettings,
+  onTileClick?: TileClickHandler,
 ): void {
   const {
     layout,
@@ -200,6 +216,7 @@ export function drawCalendar(
         shape,
         overwrites: getEvent(date, events),
         colorSettings,
+        onClick: onTileClick,
       }),
     );
   }

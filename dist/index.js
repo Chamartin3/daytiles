@@ -294,7 +294,7 @@ var SVG_NS2 = "http://www.w3.org/2000/svg";
 var DEFAULT_FADE_BRIGHTNESS = 0.6;
 var ROW_LABEL_CLASS = "row-label";
 var ROW_LABEL_GAP = 8;
-function drawDateTile(dateToDraw, { x, y, size, shape, overwrites, colorSettings }) {
+function drawDateTile(dateToDraw, { x, y, size, shape, overwrites, colorSettings, onClick }) {
   const dateContext = getDateContext(dateToDraw);
   const tile = createTile(shape, x, y, size);
   const dayColor = overwrites.color || getColor(dateContext, colorSettings);
@@ -308,6 +308,12 @@ function drawDateTile(dateToDraw, { x, y, size, shape, overwrites, colorSettings
   if (overwrites.note) tile.setAttribute("data-note", overwrites.note);
   tile.addEventListener("mouseover", showDateTooltip);
   tile.addEventListener("mouseout", hideDateTooltip);
+  if (onClick) {
+    tile.style.cursor = "pointer";
+    tile.addEventListener("click", (domEvent) => {
+      onClick({ date: new Date(dateToDraw), event: overwrites, domEvent });
+    });
+  }
   dayClasses.forEach((c) => tile.classList.add(c));
   return tile;
 }
@@ -347,7 +353,7 @@ function rowLabel(layout, date, rowIndex, daysPerRow) {
       return "";
   }
 }
-function drawCalendar(svgElement, settings) {
+function drawCalendar(svgElement, settings, onTileClick) {
   const {
     layout,
     daysPerRow,
@@ -436,7 +442,8 @@ function drawCalendar(svgElement, settings) {
         size: squareSize,
         shape,
         overwrites: getEvent(date, events),
-        colorSettings
+        colorSettings,
+        onClick: onTileClick
       })
     );
   }
@@ -467,11 +474,15 @@ function generateId() {
 var Daytiles = class {
   settings;
   events = /* @__PURE__ */ new Map();
+  tileClickHandler;
   constructor(options = {}) {
     this.settings = this.mergeSettings(BaseCalendarSettings, options);
   }
   update(options) {
     this.settings = this.mergeSettings(this.settings, options);
+  }
+  onTileClick(handler) {
+    this.tileClickHandler = handler;
   }
   addEvent(event) {
     const id = generateId();
@@ -492,7 +503,11 @@ var Daytiles = class {
   }
   render(svgElement) {
     const events = this.flattenEvents(this.settings.colors.defaultEventColor);
-    drawCalendar(svgElement, { ...this.settings, events });
+    drawCalendar(
+      svgElement,
+      { ...this.settings, events },
+      this.tileClickHandler
+    );
   }
   mergeSettings(base, overrides) {
     const { colors, ...rest } = overrides;
