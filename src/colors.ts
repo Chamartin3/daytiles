@@ -16,6 +16,7 @@ export interface ColorSettings {
   futureDay: string;
   alternation: AlternationSettings;
   defaultEventColor: string;
+  eventTypeColors?: Record<string, string>;
   highlightCurrent?: boolean;
   fadePastDates?: boolean | number;
   solidPastColor?: boolean;

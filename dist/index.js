@@ -502,7 +502,8 @@ var Daytiles = class {
     return this.settings;
   }
   render(svgElement) {
-    const events = this.flattenEvents(this.settings.colors.defaultEventColor);
+    const { defaultEventColor, eventTypeColors } = this.settings.colors;
+    const events = this.flattenEvents(defaultEventColor, eventTypeColors ?? {});
     drawCalendar(
       svgElement,
       { ...this.settings, events },
@@ -518,13 +519,14 @@ var Daytiles = class {
       events: {}
     };
   }
-  flattenEvents(defaultColor) {
+  flattenEvents(defaultColor, typeColors) {
     const out = {};
     for (const entry of this.events.values()) {
       const start = toDate2(entry.start);
       const end = entry.end ? toDate2(entry.end) : start;
       const cursor = new Date(start);
-      const color = entry.color ?? defaultColor;
+      const typeColor = entry.type ? typeColors[entry.type] : void 0;
+      const color = entry.color ?? typeColor ?? defaultColor;
       while (cursor.getTime() <= end.getTime()) {
         const key = monthDayKey(cursor);
         const note = entry.note ?? key;

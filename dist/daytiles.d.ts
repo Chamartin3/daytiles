@@ -7,6 +7,7 @@ export interface DaytilesEventInput {
     start: DateInput;
     end?: DateInput;
     color?: string;
+    type?: string;
     note?: string;
 }
 export interface DaytilesEvent extends DaytilesEventInput {

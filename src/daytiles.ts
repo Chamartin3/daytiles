@@ -12,6 +12,7 @@ export interface DaytilesEventInput {
   start: DateInput;
   end?: DateInput;
   color?: string;
+  type?: string;
   note?: string;
 }
 
@@ -89,7 +90,8 @@ export class Daytiles {
   }
 
   render(svgElement: SVGSVGElement): void {
-    const events = this.flattenEvents(this.settings.colors.defaultEventColor);
+    const { defaultEventColor, eventTypeColors } = this.settings.colors;
+    const events = this.flattenEvents(defaultEventColor, eventTypeColors ?? {});
     drawCalendar(
       svgElement,
       { ...this.settings, events },
@@ -110,13 +112,17 @@ export class Daytiles {
     };
   }
 
-  private flattenEvents(defaultColor: string): EventsDict {
+  private flattenEvents(
+    defaultColor: string,
+    typeColors: Record<string, string>,
+  ): EventsDict {
     const out: EventsDict = {};
     for (const entry of this.events.values()) {
       const start = toDate(entry.start);
       const end = entry.end ? toDate(entry.end) : start;
       const cursor = new Date(start);
-      const color = entry.color ?? defaultColor;
+      const typeColor = entry.type ? typeColors[entry.type] : undefined;
+      const color = entry.color ?? typeColor ?? defaultColor;
       while (cursor.getTime() <= end.getTime()) {
         const key = monthDayKey(cursor);
         const note = entry.note ?? key;
