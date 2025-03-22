@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Daytiles — American Revolution</title>
+    <link rel="stylesheet" href="../../styles.css" />
+    <style>
+      body { font-family: system-ui, sans-serif; max-width: 760px; margin: 2em auto; padding: 0 1em; }
+      .legend { display: flex; flex-wrap: wrap; gap: 1em; margin: 1em 0; font-size: 0.9em; }
+      .legend span { display: inline-flex; align-items: center; gap: 0.4em; }
+      .swatch { width: 14px; height: 14px; border-radius: 3px; display: inline-block; }
+      a { color: #0366d6; }
+      .meta { color: #666; min-height: 1.4em; }
+    </style>
+  </head>
+  <body>
+    <p><a href="../">← All examples</a></p>
+    <h1>American Revolution — Key Dates</h1>
+    <p class="meta">April 1775 – September 1783. Click a highlighted day for details.</p>
+    <div class="legend">
+      <span><i class="swatch" style="background:#d62728"></i> Battle</span>
+      <span><i class="swatch" style="background:#ff9500"></i> Major victory</span>
+      <span><i class="swatch" style="background:#1f77b4"></i> Diplomacy / document</span>
+    </div>
+    <svg id="calendar"></svg>
+    <p id="info" class="meta"></p>
+    <script type="module" src="revolution.js"></script>
+  </body>
+</html>
