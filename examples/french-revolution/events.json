@@ -1,0 +1,15 @@
+[
+  { "start": "1789-05-05", "color": "#1f77b4", "note": "Estates-General opens" },
+  { "start": "1789-06-17", "color": "#1f77b4", "note": "Tennis Court Oath" },
+  { "start": "1789-07-14", "color": "#d62728", "note": "Storming of the Bastille" },
+  { "start": "1789-08-26", "color": "#1f77b4", "note": "Declaration of the Rights of Man" },
+  { "start": "1789-10-05", "color": "#d62728", "note": "Women's March on Versailles" },
+  { "start": "1791-06-21", "color": "#ff9500", "note": "Flight to Varennes" },
+  { "start": "1792-08-10", "color": "#d62728", "note": "Storming of the Tuileries" },
+  { "start": "1792-09-21", "color": "#ff9500", "note": "First French Republic proclaimed" },
+  { "start": "1793-01-21", "color": "#2c3e50", "note": "Execution of Louis XVI" },
+  { "start": "1793-09-05", "color": "#2c3e50", "note": "Reign of Terror begins" },
+  { "start": "1794-07-27", "color": "#ff9500", "note": "Thermidorian Reaction — fall of Robespierre" },
+  { "start": "1795-08-22", "color": "#1f77b4", "note": "Constitution of Year III" },
+  { "start": "1799-11-09", "color": "#ff9500", "note": "Coup of 18 Brumaire — Napoleon" }
+]
