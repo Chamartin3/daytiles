@@ -12,6 +12,12 @@ const dt = new Daytiles({
   colors: {
     futureDay: "#eaeaea",
     alternation: { mode: AlternationMode.Month, color: "#e6dff5", size: 1 },
+    eventTypeColors: {
+      uprising: "#d62728",
+      document: "#1f77b4",
+      terror: "#2c3e50",
+      regime: "#ff9500",
+    },
   },
 });
 

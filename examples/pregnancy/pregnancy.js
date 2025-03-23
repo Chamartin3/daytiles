@@ -14,6 +14,12 @@ const dt = new Daytiles({
   showLabels: true,
   colors: {
     alternation: { mode: AlternationMode.Week, color: "#f0f4ff", size: 1 },
+    eventTypeColors: {
+      ultrasound: "#bf5af2",
+      screening: "#0a84ff",
+      routine: "#34c759",
+      due: "#ff453a",
+    },
   },
 });
 

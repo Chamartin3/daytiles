@@ -1,12 +1,12 @@
 [
-  { "start": "2026-03-12", "color": "#bf5af2", "note": "Week 8 — Early ultrasound" },
-  { "start": "2026-04-09", "color": "#0a84ff", "note": "Week 12 — NT scan" },
-  { "start": "2026-05-07", "color": "#0a84ff", "note": "Week 16 — Quad screen" },
-  { "start": "2026-06-04", "color": "#bf5af2", "note": "Week 20 — Anatomy scan" },
-  { "start": "2026-07-02", "color": "#34c759", "note": "Week 24 — Routine check" },
-  { "start": "2026-07-30", "color": "#0a84ff", "note": "Week 28 — Glucose test" },
-  { "start": "2026-08-27", "color": "#34c759", "note": "Week 32 — Routine check" },
-  { "start": "2026-09-24", "color": "#34c759", "note": "Week 36 — Routine check" },
-  { "start": "2026-10-08", "color": "#34c759", "note": "Week 38 — Routine check" },
-  { "start": "2026-10-22", "color": "#ff453a", "note": "Estimated due date" }
+  { "start": "2026-03-12", "type": "ultrasound", "note": "Week 8 — Early ultrasound" },
+  { "start": "2026-04-09", "type": "screening", "note": "Week 12 — NT scan" },
+  { "start": "2026-05-07", "type": "screening", "note": "Week 16 — Quad screen" },
+  { "start": "2026-06-04", "type": "ultrasound", "note": "Week 20 — Anatomy scan" },
+  { "start": "2026-07-02", "type": "routine", "note": "Week 24 — Routine check" },
+  { "start": "2026-07-30", "type": "screening", "note": "Week 28 — Glucose test" },
+  { "start": "2026-08-27", "type": "routine", "note": "Week 32 — Routine check" },
+  { "start": "2026-09-24", "type": "routine", "note": "Week 36 — Routine check" },
+  { "start": "2026-10-08", "type": "routine", "note": "Week 38 — Routine check" },
+  { "start": "2026-10-22", "type": "due", "note": "Estimated due date" }
 ]

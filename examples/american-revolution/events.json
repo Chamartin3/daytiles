@@ -1,10 +1,10 @@
 [
-  { "start": "1775-04-19", "color": "#d62728", "note": "Lexington and Concord" },
-  { "start": "1775-06-17", "color": "#d62728", "note": "Battle of Bunker Hill" },
-  { "start": "1776-07-04", "color": "#1f77b4", "note": "Declaration of Independence" },
-  { "start": "1776-12-26", "color": "#ff9500", "note": "Battle of Trenton" },
-  { "start": "1777-10-17", "color": "#ff9500", "note": "Surrender at Saratoga" },
-  { "start": "1778-02-06", "color": "#1f77b4", "note": "Treaty of Alliance with France" },
-  { "start": "1781-10-19", "color": "#ff9500", "note": "British surrender at Yorktown" },
-  { "start": "1783-09-03", "color": "#1f77b4", "note": "Treaty of Paris signed" }
+  { "start": "1775-04-19", "type": "battle", "note": "Lexington and Concord" },
+  { "start": "1775-06-17", "type": "battle", "note": "Battle of Bunker Hill" },
+  { "start": "1776-07-04", "type": "document", "note": "Declaration of Independence" },
+  { "start": "1776-12-26", "type": "victory", "note": "Battle of Trenton" },
+  { "start": "1777-10-17", "type": "victory", "note": "Surrender at Saratoga" },
+  { "start": "1778-02-06", "type": "document", "note": "Treaty of Alliance with France" },
+  { "start": "1781-10-19", "type": "victory", "note": "British surrender at Yorktown" },
+  { "start": "1783-09-03", "type": "document", "note": "Treaty of Paris signed" }
 ]

@@ -1,12 +1,12 @@
 [
-  { "start": "2026-07-01", "color": "#34c759", "note": "Q3 Kickoff — OKRs published" },
-  { "start": "2026-07-13", "end": "2026-07-17", "color": "#0a84ff", "note": "Sprint 1 review week" },
-  { "start": "2026-07-29", "color": "#ff9500", "note": "Mid-month checkpoint" },
-  { "start": "2026-08-03", "end": "2026-08-07", "color": "#0a84ff", "note": "Sprint 2 review week" },
-  { "start": "2026-08-15", "color": "#bf5af2", "note": "Mid-quarter review" },
-  { "start": "2026-08-24", "end": "2026-08-28", "color": "#0a84ff", "note": "Sprint 3 review week" },
-  { "start": "2026-09-04", "color": "#ff9500", "note": "OKR check-in with leadership" },
-  { "start": "2026-09-14", "end": "2026-09-18", "color": "#0a84ff", "note": "Sprint 4 review week" },
-  { "start": "2026-09-25", "color": "#ff453a", "note": "Final feature freeze" },
-  { "start": "2026-09-30", "color": "#bf5af2", "note": "End-of-quarter retrospective" }
+  { "start": "2026-07-01", "type": "kickoff", "note": "Q3 Kickoff — OKRs published" },
+  { "start": "2026-07-13", "end": "2026-07-17", "type": "sprint", "note": "Sprint 1 review week" },
+  { "start": "2026-07-29", "type": "checkpoint", "note": "Mid-month checkpoint" },
+  { "start": "2026-08-03", "end": "2026-08-07", "type": "sprint", "note": "Sprint 2 review week" },
+  { "start": "2026-08-15", "type": "review", "note": "Mid-quarter review" },
+  { "start": "2026-08-24", "end": "2026-08-28", "type": "sprint", "note": "Sprint 3 review week" },
+  { "start": "2026-09-04", "type": "checkpoint", "note": "OKR check-in with leadership" },
+  { "start": "2026-09-14", "end": "2026-09-18", "type": "sprint", "note": "Sprint 4 review week" },
+  { "start": "2026-09-25", "type": "freeze", "note": "Final feature freeze" },
+  { "start": "2026-09-30", "type": "review", "note": "End-of-quarter retrospective" }
 ]

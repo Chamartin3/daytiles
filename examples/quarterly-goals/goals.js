@@ -11,6 +11,13 @@ const dt = new Daytiles({
   showLabels: true,
   colors: {
     alternation: { mode: AlternationMode.Custom, color: "#eef3f9", size: 14 },
+    eventTypeColors: {
+      kickoff: "#34c759",
+      sprint: "#0a84ff",
+      checkpoint: "#ff9500",
+      review: "#bf5af2",
+      freeze: "#ff453a",
+    },
   },
 });
 
