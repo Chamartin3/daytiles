@@ -13,7 +13,10 @@ const dt = new Daytiles({
   startDayOfWeek: 1,
   showLabels: true,
   colors: {
-    alternation: { mode: AlternationMode.None, color: "#d2f0fa", size: 7 },
+    current: "#ffd60a",
+    pastDay: "#cfd6dc",
+    futureDay: "#f4f6f8",
+    alternation: { mode: AlternationMode.None, color: "#eef1f4", size: 7 },
     eventTypeColors: {
       workout: "#34c759",
       reading: "#0a84ff",

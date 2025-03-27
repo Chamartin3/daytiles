@@ -10,8 +10,10 @@ const dt = new Daytiles({
   startDayOfWeek: 0,
   showLabels: true,
   colors: {
-    futureDay: "#eaeaea",
-    alternation: { mode: AlternationMode.Month, color: "#f5e6d3", size: 1 },
+    current: "#b22234",
+    pastDay: "#e8dcc4",
+    futureDay: "#f6efe1",
+    alternation: { mode: AlternationMode.Month, color: "#e9d8b8", size: 1 },
     eventTypeColors: {
       battle: "#d62728",
       victory: "#ff9500",
