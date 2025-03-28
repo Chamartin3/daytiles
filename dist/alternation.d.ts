@@ -4,6 +4,7 @@ export declare enum AlternationMode {
     Day = "day",
     Week = "week",
     Month = "month",
+    Year = "year",
     Custom = "custom"
 }
 export interface AlternationSettings {

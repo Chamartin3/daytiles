@@ -195,6 +195,7 @@ export function drawCalendar(
       el.setAttribute("x", "0");
       el.setAttribute("y", String(r * (squareSize + gap) + squareSize * 0.7));
       el.setAttribute("class", ROW_LABEL_CLASS);
+      el.setAttribute("font-size", String(Math.max(8, Math.round(squareSize * 0.55))));
       el.textContent = text;
       svgElement.appendChild(el);
       return el;

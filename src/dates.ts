@@ -4,11 +4,12 @@ export interface DateContext {
   isFuture: boolean;
   dayOfWeek: number;
   month: number;
+  year: number;
   dayOfYear: number;
   weekOfYear: number;
 }
 
-export type EventInfo = { color?: string; note?: string };
+export type EventInfo = { color?: string; note?: string; wiki?: string };
 export type EventsDict = Record<string, EventInfo>;
 
 export type DateInput = Date | string;
@@ -53,14 +54,10 @@ export function getRangeDates(
 }
 
 export function getEvent(date: Date, events: EventsDict): EventInfo {
-  const formattedDate = date
-    .toLocaleDateString("en-US", {
-      month: "2-digit",
-      day: "2-digit",
-    })
-    .replace("/", "-");
-
-  return events[formattedDate] ?? {};
+  const y = String(date.getFullYear()).padStart(4, "0");
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return events[`${y}-${m}-${d}`] ?? {};
 }
 
 const MS_PER_DAY = 86_400_000;
@@ -85,6 +82,7 @@ export function getDateContext(date: Date, today: Date = new Date()): DateContex
     isFuture: date > today,
     dayOfWeek: date.getDay(),
     month: date.getMonth(),
+    year: date.getFullYear(),
     dayOfYear: dayOfYear(date),
     weekOfYear: isoWeekOfYear(date),
   };

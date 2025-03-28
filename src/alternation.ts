@@ -5,6 +5,7 @@ export enum AlternationMode {
   Day = "day",
   Week = "week",
   Month = "month",
+  Year = "year",
   Custom = "custom",
 }
 
@@ -26,6 +27,8 @@ export function alternationBucket(
       return ctx.weekOfYear;
     case AlternationMode.Month:
       return ctx.month;
+    case AlternationMode.Year:
+      return ctx.year;
     case AlternationMode.Custom:
       return Math.floor(ctx.dayOfYear / Math.max(1, size));
     case AlternationMode.None:

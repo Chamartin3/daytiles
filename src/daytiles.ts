@@ -14,6 +14,7 @@ export interface DaytilesEventInput {
   color?: string;
   type?: string;
   note?: string;
+  wiki?: string;
 }
 
 export interface DaytilesEvent extends DaytilesEventInput {
@@ -37,10 +38,11 @@ function toDate(value: DateInput): Date {
   throw new Error(`Unsupported date value: ${value}`);
 }
 
-function monthDayKey(date: Date): string {
+function dateKey(date: Date): string {
+  const y = String(date.getFullYear()).padStart(4, "0");
   const m = String(date.getMonth() + 1).padStart(2, "0");
   const d = String(date.getDate()).padStart(2, "0");
-  return `${m}-${d}`;
+  return `${y}-${m}-${d}`;
 }
 
 function generateId(): DaytilesEventId {
@@ -124,12 +126,13 @@ export class Daytiles {
       const typeColor = entry.type ? typeColors[entry.type] : undefined;
       const color = entry.color ?? typeColor ?? defaultColor;
       while (cursor.getTime() <= end.getTime()) {
-        const key = monthDayKey(cursor);
+        const key = dateKey(cursor);
         const note = entry.note ?? key;
         const existing = out[key];
         out[key] = {
           color: existing?.color ?? color,
           note: existing?.note ? `${existing.note} • ${note}` : note,
+          wiki: existing?.wiki ?? entry.wiki,
         };
         cursor.setTime(cursor.getTime() + MS_PER_DAY);
       }

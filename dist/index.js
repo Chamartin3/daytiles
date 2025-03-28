@@ -4,6 +4,7 @@ var AlternationMode = /* @__PURE__ */ ((AlternationMode3) => {
   AlternationMode3["Day"] = "day";
   AlternationMode3["Week"] = "week";
   AlternationMode3["Month"] = "month";
+  AlternationMode3["Year"] = "year";
   AlternationMode3["Custom"] = "custom";
   return AlternationMode3;
 })(AlternationMode || {});
@@ -15,6 +16,8 @@ function alternationBucket(ctx, mode, size) {
       return ctx.weekOfYear;
     case "month" /* Month */:
       return ctx.month;
+    case "year" /* Year */:
+      return ctx.year;
     case "custom" /* Custom */:
       return Math.floor(ctx.dayOfYear / Math.max(1, size));
     case "none" /* None */:
@@ -96,11 +99,10 @@ function getRangeDates(initial, final, year = null) {
   };
 }
 function getEvent(date, events) {
-  const formattedDate = date.toLocaleDateString("en-US", {
-    month: "2-digit",
-    day: "2-digit"
-  }).replace("/", "-");
-  return events[formattedDate] ?? {};
+  const y = String(date.getFullYear()).padStart(4, "0");
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return events[`${y}-${m}-${d}`] ?? {};
 }
 var MS_PER_DAY = 864e5;
 function dayOfYear(date) {
@@ -121,6 +123,7 @@ function getDateContext(date, today = /* @__PURE__ */ new Date()) {
     isFuture: date > today,
     dayOfWeek: date.getDay(),
     month: date.getMonth(),
+    year: date.getFullYear(),
     dayOfYear: dayOfYear(date),
     weekOfYear: isoWeekOfYear(date)
   };
@@ -423,6 +426,7 @@ function drawCalendar(svgElement, settings, onTileClick) {
       el.setAttribute("x", "0");
       el.setAttribute("y", String(r * (squareSize + gap) + squareSize * 0.7));
       el.setAttribute("class", ROW_LABEL_CLASS);
+      el.setAttribute("font-size", String(Math.max(8, Math.round(squareSize * 0.55))));
       el.textContent = text;
       svgElement.appendChild(el);
       return el;
@@ -460,10 +464,11 @@ function toDate2(value) {
   }
   throw new Error(`Unsupported date value: ${value}`);
 }
-function monthDayKey(date) {
+function dateKey(date) {
+  const y = String(date.getFullYear()).padStart(4, "0");
   const m = String(date.getMonth() + 1).padStart(2, "0");
   const d = String(date.getDate()).padStart(2, "0");
-  return `${m}-${d}`;
+  return `${y}-${m}-${d}`;
 }
 function generateId() {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
@@ -528,12 +533,13 @@ var Daytiles = class {
       const typeColor = entry.type ? typeColors[entry.type] : void 0;
       const color = entry.color ?? typeColor ?? defaultColor;
       while (cursor.getTime() <= end.getTime()) {
-        const key = monthDayKey(cursor);
+        const key = dateKey(cursor);
         const note = entry.note ?? key;
         const existing = out[key];
         out[key] = {
           color: existing?.color ?? color,
-          note: existing?.note ? `${existing.note} \u2022 ${note}` : note
+          note: existing?.note ? `${existing.note} \u2022 ${note}` : note,
+          wiki: existing?.wiki ?? entry.wiki
         };
         cursor.setTime(cursor.getTime() + MS_PER_DAY2);
       }

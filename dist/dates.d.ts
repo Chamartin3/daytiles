@@ -4,12 +4,14 @@ export interface DateContext {
     isFuture: boolean;
     dayOfWeek: number;
     month: number;
+    year: number;
     dayOfYear: number;
     weekOfYear: number;
 }
 export type EventInfo = {
     color?: string;
     note?: string;
+    wiki?: string;
 };
 export type EventsDict = Record<string, EventInfo>;
 export type DateInput = Date | string;
