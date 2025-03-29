@@ -17,6 +17,7 @@ const dt = new Daytiles({
     pastDay: "#cfd6dc",
     futureDay: "#f4f6f8",
     alternation: { mode: AlternationMode.None, color: "#eef1f4", size: 7 },
+    highlight: { weekdays: {}, months: {} },
     eventTypeColors: {
       workout: "#34c759",
       reading: "#0a84ff",
