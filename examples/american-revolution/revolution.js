@@ -11,7 +11,8 @@ const dt = new Daytiles({
   showLabels: true,
   colors: {
     current: "#b22234",
-    pastDay: "#e8dcc4",
+    fadePastDates: false,
+    pastDay: "#f6efe1",
     futureDay: "#f6efe1",
     alternation: { mode: AlternationMode.Month, color: "#e9d8b8", size: 1 },
     eventTypeColors: {
