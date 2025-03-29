@@ -3,28 +3,44 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Daytiles — American Revolution</title>
+    <title>Daytiles — Every Day of the American Revolution</title>
     <link rel="stylesheet" href="../../styles.css" />
     <style>
-      body { font-family: system-ui, sans-serif; max-width: 760px; margin: 2em auto; padding: 0 1em; }
-      .legend { display: flex; flex-wrap: wrap; gap: 1em; margin: 1em 0; font-size: 0.9em; }
+      body { font-family: system-ui, sans-serif; max-width: 1400px; margin: 2em auto; padding: 0 1em; }
+      h1 { text-align: center; }
+      .legend { display: flex; flex-wrap: wrap; gap: 1em; margin: 1em 0; font-size: 0.9em; justify-content: center; }
       .legend span { display: inline-flex; align-items: center; gap: 0.4em; }
       .swatch { width: 14px; height: 14px; border-radius: 3px; display: inline-block; }
       a { color: #0366d6; }
-      .meta { color: #666; min-height: 1.4em; }
+      .meta { color: #666; min-height: 1.4em; text-align: center; }
+      .layout { display: flex; gap: 1.5em; align-items: flex-start; justify-content: center; flex-wrap: wrap; }
+      .calendar-col { flex: 0 0 auto; }
+      #calendar { display: block; }
+      #wiki { flex: 1 1 320px; max-width: 480px; min-width: 280px; padding: 1em 1.25em; border: 1px solid #ddd; border-radius: 6px; background: #fafbfc; display: none; }
+      #wiki.loaded { display: block; }
+      #wiki h2 { margin: 0 0 0.5em; font-size: 1.2em; }
+      #wiki img { float: right; max-width: 160px; margin: 0 0 0.5em 1em; border-radius: 4px; }
+      #wiki .extract { line-height: 1.5; color: #222; }
+      #wiki .more { display: inline-block; margin-top: 0.75em; }
     </style>
   </head>
   <body>
     <p><a href="../">← All examples</a></p>
-    <h1>American Revolution — Key Dates</h1>
-    <p class="meta">April 1775 – September 1783. Click a highlighted day for details.</p>
+    <h1>Every Day of the American Revolution</h1>
+    <p class="meta">April 1775 – September 1783. Click a highlighted day to load its Wikipedia article.</p>
     <div class="legend">
-      <span><i class="swatch" style="background:#d62728"></i> Battle</span>
-      <span><i class="swatch" style="background:#ff9500"></i> Major victory</span>
-      <span><i class="swatch" style="background:#1f77b4"></i> Diplomacy / document</span>
+      <span><i class="swatch" style="background:#3c3b6e"></i> Political</span>
+      <span><i class="swatch" style="background:#6b6e9c"></i> Diplomacy</span>
+      <span><i class="swatch" style="background:#b22234"></i> Battle</span>
+      <span><i class="swatch" style="background:#d97706"></i> Major victory</span>
     </div>
-    <svg id="calendar"></svg>
-    <p id="info" class="meta"></p>
+    <div class="layout">
+      <div class="calendar-col">
+        <svg id="calendar"></svg>
+        <p id="info" class="meta"></p>
+      </div>
+      <div id="wiki"></div>
+    </div>
     <script type="module" src="revolution.js"></script>
   </body>
 </html>
