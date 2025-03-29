@@ -3,29 +3,38 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Daytiles — French Revolution</title>
+    <title>Daytiles — Every Day of the French Revolution</title>
     <link rel="stylesheet" href="../../styles.css" />
     <style>
-      body { font-family: system-ui, sans-serif; max-width: 760px; margin: 2em auto; padding: 0 1em; }
-      .legend { display: flex; flex-wrap: wrap; gap: 1em; margin: 1em 0; font-size: 0.9em; }
+      body { font-family: system-ui, sans-serif; max-width: 1100px; margin: 2em auto; padding: 0 1em; }
+      .legend { display: flex; flex-wrap: wrap; gap: 1em; margin: 1em 0; font-size: 0.9em; justify-content: center; }
       .legend span { display: inline-flex; align-items: center; gap: 0.4em; }
       .swatch { width: 14px; height: 14px; border-radius: 3px; display: inline-block; }
       a { color: #0366d6; }
-      .meta { color: #666; min-height: 1.4em; }
+      .meta { color: #666; min-height: 1.4em; text-align: center; }
+      h1 { text-align: center; }
+      #calendar { display: block; margin: 0 auto; }
+      #wiki { margin-top: 1.5em; padding: 1em 1.25em; border: 1px solid #ddd; border-radius: 6px; background: #fafbfc; display: none; }
+      #wiki.loaded { display: block; }
+      #wiki h2 { margin: 0 0 0.5em; font-size: 1.2em; }
+      #wiki img { float: right; max-width: 160px; margin: 0 0 0.5em 1em; border-radius: 4px; }
+      #wiki .extract { line-height: 1.5; color: #222; }
+      #wiki .more { display: inline-block; margin-top: 0.75em; }
     </style>
   </head>
   <body>
     <p><a href="../">← All examples</a></p>
-    <h1>French Revolution — Key Dates</h1>
+    <h1>Every Day of the French Revolution</h1>
     <p class="meta">May 1789 – November 1799. Click a highlighted day for details.</p>
     <div class="legend">
-      <span><i class="swatch" style="background:#d62728"></i> Uprising</span>
-      <span><i class="swatch" style="background:#1f77b4"></i> Document / proclamation</span>
-      <span><i class="swatch" style="background:#2c3e50"></i> Execution / terror</span>
-      <span><i class="swatch" style="background:#ff9500"></i> Regime change</span>
+      <span><i class="swatch" style="background:#0055a4"></i> Political / legal</span>
+      <span><i class="swatch" style="background:#6e6aaa"></i> Uprising / coup</span>
+      <span><i class="swatch" style="background:#c94a6e"></i> Terror / execution</span>
+      <span><i class="swatch" style="background:#ef4135"></i> War / battle</span>
     </div>
     <svg id="calendar"></svg>
-    <p id="info" class="meta"></p>
+    <p id="info" class="meta">Click a highlighted day to load its Wikipedia article below.</p>
+    <div id="wiki"></div>
     <script type="module" src="revolution.js"></script>
   </body>
 </html>
