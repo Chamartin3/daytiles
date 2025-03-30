@@ -54,7 +54,7 @@ function generateId(): DaytilesEventId {
 
 export class Daytiles {
   private settings: CalendarSettings;
-  private readonly events: Map<DaytilesEventId, DaytilesEvent> = new Map();
+  private events: DaytilesEvent[] = [];
   private tileClickHandler?: TileClickHandler;
 
   constructor(options: DaytilesOptions = {}) {
@@ -70,21 +70,40 @@ export class Daytiles {
   }
 
   addEvent(event: DaytilesEventInput): DaytilesEventId {
-    const id = generateId();
-    this.events.set(id, { ...event, id });
-    return id;
+    const stamped = { ...event, id: generateId() };
+    this.events.push(stamped);
+    return stamped.id;
+  }
+
+  addEvents(events: DaytilesEventInput[]): DaytilesEventId[] {
+    return events.map((e) => this.addEvent(e));
+  }
+
+  prependEvent(event: DaytilesEventInput): DaytilesEventId {
+    const stamped = { ...event, id: generateId() };
+    this.events.unshift(stamped);
+    return stamped.id;
+  }
+
+  prependEvents(events: DaytilesEventInput[]): DaytilesEventId[] {
+    const stamped = events.map((e) => ({ ...e, id: generateId() }));
+    this.events.unshift(...stamped);
+    return stamped.map((e) => e.id);
   }
 
   removeEvent(id: DaytilesEventId): boolean {
-    return this.events.delete(id);
+    const idx = this.events.findIndex((e) => e.id === id);
+    if (idx === -1) return false;
+    this.events.splice(idx, 1);
+    return true;
   }
 
   clearEvents(): void {
-    this.events.clear();
+    this.events = [];
   }
 
   listEvents(): DaytilesEvent[] {
-    return Array.from(this.events.values());
+    return [...this.events];
   }
 
   getSettings(): CalendarSettings {
@@ -99,6 +118,15 @@ export class Daytiles {
       { ...this.settings, events },
       this.tileClickHandler,
     );
+    const bbox = svgElement.getBBox();
+    const w = Math.ceil(bbox.x + bbox.width);
+    const h = Math.ceil(bbox.y + bbox.height);
+    svgElement.setAttribute("viewBox", `0 0 ${w} ${h}`);
+    svgElement.setAttribute("preserveAspectRatio", "xMidYMin meet");
+    svgElement.setAttribute("width", String(w));
+    svgElement.setAttribute("height", String(h));
+    if (!svgElement.style.maxWidth) svgElement.style.maxWidth = "100%";
+    if (!svgElement.style.height) svgElement.style.height = "auto";
   }
 
   private mergeSettings(
@@ -119,7 +147,7 @@ export class Daytiles {
     typeColors: Record<string, string>,
   ): EventsDict {
     const out: EventsDict = {};
-    for (const entry of this.events.values()) {
+    for (const entry of this.events) {
       const start = toDate(entry.start);
       const end = entry.end ? toDate(entry.end) : start;
       const cursor = new Date(start);

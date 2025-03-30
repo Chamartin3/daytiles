@@ -19,12 +19,15 @@ export interface DaytilesOptions extends Partial<Omit<CalendarSettings, "colors"
 }
 export declare class Daytiles {
     private settings;
-    private readonly events;
+    private events;
     private tileClickHandler?;
     constructor(options?: DaytilesOptions);
     update(options: DaytilesOptions): void;
     onTileClick(handler: TileClickHandler | undefined): void;
     addEvent(event: DaytilesEventInput): DaytilesEventId;
+    addEvents(events: DaytilesEventInput[]): DaytilesEventId[];
+    prependEvent(event: DaytilesEventInput): DaytilesEventId;
+    prependEvents(events: DaytilesEventInput[]): DaytilesEventId[];
     removeEvent(id: DaytilesEventId): boolean;
     clearEvents(): void;
     listEvents(): DaytilesEvent[];

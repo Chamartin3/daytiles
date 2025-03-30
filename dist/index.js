@@ -37,18 +37,11 @@ var FUTURE_DAY_CLASS = "future-day";
 var PRESENT_DAY_CLASS = "present-day";
 var PAST_DAY_CLASS = "past-day";
 function getColor(dateContext, colorSettings) {
-  const {
-    current: currentColor,
-    pastDay: pastDayColor,
-    futureDay: futureDayColor,
-    alternation,
-    solidPastColor: solidPast
-  } = colorSettings;
+  const { current: currentColor, dayColor, alternation } = colorSettings;
   const weekdayColors = colorSettings.highlight?.weekdays ?? {};
   const monthColors = colorSettings.highlight?.months ?? {};
   const highlightCurrent = colorSettings.highlightCurrent !== false;
   if (highlightCurrent && dateContext.isPresent) return currentColor;
-  if (solidPast && dateContext.isPast && !dateContext.isPresent) return pastDayColor;
   const weekdayMatch = weekdayColors[dateContext.dayOfWeek];
   if (weekdayMatch) return weekdayMatch;
   const monthMatch = monthColors[dateContext.month];
@@ -56,7 +49,7 @@ function getColor(dateContext, colorSettings) {
   if (shouldAlternate(dateContext, alternation)) {
     return alternation.color;
   }
-  return futureDayColor;
+  return dayColor;
 }
 function getClasses(ctx) {
   const classList = [DATE_BOX_CLASS];
@@ -195,12 +188,6 @@ var Layout = /* @__PURE__ */ ((Layout2) => {
   Layout2["Custom"] = "custom";
   return Layout2;
 })(Layout || {});
-var PastMode = /* @__PURE__ */ ((PastMode2) => {
-  PastMode2["None"] = "none";
-  PastMode2["Fade"] = "fade";
-  PastMode2["Solid"] = "solid";
-  return PastMode2;
-})(PastMode || {});
 var BaseCalendarSettings = {
   layout: "weekday" /* Weekday */,
   startDate: "03-01",
@@ -216,9 +203,8 @@ var BaseCalendarSettings = {
   events: {},
   colors: {
     current: "#FFD700",
-    fadePastDates: true,
-    pastDay: "#555",
-    futureDay: "#eee",
+    dayColor: "#eee",
+    pastFade: 0.6,
     alternation: {
       mode: "month" /* Month */,
       color: "#d2f0fa",
@@ -226,10 +212,7 @@ var BaseCalendarSettings = {
     },
     defaultEventColor: "#ff5577",
     highlight: {
-      weekdays: {
-        0: "#BAFFC9",
-        6: "#BAFFC9"
-      },
+      weekdays: {},
       months: {}
     }
   }
@@ -294,7 +277,6 @@ function hideDateTooltip() {
 
 // src/draw.ts
 var SVG_NS2 = "http://www.w3.org/2000/svg";
-var DEFAULT_FADE_BRIGHTNESS = 0.6;
 var ROW_LABEL_CLASS = "row-label";
 var ROW_LABEL_GAP = 8;
 function drawDateTile(dateToDraw, { x, y, size, shape, overwrites, colorSettings, onClick }) {
@@ -303,9 +285,9 @@ function drawDateTile(dateToDraw, { x, y, size, shape, overwrites, colorSettings
   const dayColor = overwrites.color || getColor(dateContext, colorSettings);
   const dayClasses = getClasses(dateContext);
   tile.setAttribute("fill", dayColor);
-  if (dateContext.isPast && !dateContext.isPresent && colorSettings.fadePastDates) {
-    const brightness = typeof colorSettings.fadePastDates === "number" ? colorSettings.fadePastDates : DEFAULT_FADE_BRIGHTNESS;
-    tile.style.filter = `brightness(${brightness})`;
+  const fade = dateContext.isPresent ? void 0 : dateContext.isPast ? colorSettings.pastFade : colorSettings.futureFade;
+  if (typeof fade === "number" && fade !== 1) {
+    tile.style.filter = `brightness(${fade})`;
   }
   tile.setAttribute("data-date", dateToDraw.toDateString());
   if (overwrites.note) tile.setAttribute("data-note", overwrites.note);
@@ -478,7 +460,7 @@ function generateId() {
 }
 var Daytiles = class {
   settings;
-  events = /* @__PURE__ */ new Map();
+  events = [];
   tileClickHandler;
   constructor(options = {}) {
     this.settings = this.mergeSettings(BaseCalendarSettings, options);
@@ -490,18 +472,34 @@ var Daytiles = class {
     this.tileClickHandler = handler;
   }
   addEvent(event) {
-    const id = generateId();
-    this.events.set(id, { ...event, id });
-    return id;
+    const stamped = { ...event, id: generateId() };
+    this.events.push(stamped);
+    return stamped.id;
+  }
+  addEvents(events) {
+    return events.map((e) => this.addEvent(e));
+  }
+  prependEvent(event) {
+    const stamped = { ...event, id: generateId() };
+    this.events.unshift(stamped);
+    return stamped.id;
+  }
+  prependEvents(events) {
+    const stamped = events.map((e) => ({ ...e, id: generateId() }));
+    this.events.unshift(...stamped);
+    return stamped.map((e) => e.id);
   }
   removeEvent(id) {
-    return this.events.delete(id);
+    const idx = this.events.findIndex((e) => e.id === id);
+    if (idx === -1) return false;
+    this.events.splice(idx, 1);
+    return true;
   }
   clearEvents() {
-    this.events.clear();
+    this.events = [];
   }
   listEvents() {
-    return Array.from(this.events.values());
+    return [...this.events];
   }
   getSettings() {
     return this.settings;
@@ -514,6 +512,15 @@ var Daytiles = class {
       { ...this.settings, events },
       this.tileClickHandler
     );
+    const bbox = svgElement.getBBox();
+    const w = Math.ceil(bbox.x + bbox.width);
+    const h = Math.ceil(bbox.y + bbox.height);
+    svgElement.setAttribute("viewBox", `0 0 ${w} ${h}`);
+    svgElement.setAttribute("preserveAspectRatio", "xMidYMin meet");
+    svgElement.setAttribute("width", String(w));
+    svgElement.setAttribute("height", String(h));
+    if (!svgElement.style.maxWidth) svgElement.style.maxWidth = "100%";
+    if (!svgElement.style.height) svgElement.style.height = "auto";
   }
   mergeSettings(base, overrides) {
     const { colors, ...rest } = overrides;
@@ -526,7 +533,7 @@ var Daytiles = class {
   }
   flattenEvents(defaultColor, typeColors) {
     const out = {};
-    for (const entry of this.events.values()) {
+    for (const entry of this.events) {
       const start = toDate2(entry.start);
       const end = entry.end ? toDate2(entry.end) : start;
       const cursor = new Date(start);
@@ -552,7 +559,6 @@ export {
   BaseCalendarSettings,
   Daytiles,
   Layout,
-  PastMode,
   Shape
 };
 //# sourceMappingURL=index.js.map
