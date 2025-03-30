@@ -10,7 +10,6 @@ import { Shape, createTile } from "./shapes.js";
 import { showDateTooltip, hideDateTooltip } from "./tooltip.js";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
-const DEFAULT_FADE_BRIGHTNESS = 0.6;
 const ROW_LABEL_CLASS = "row-label";
 const ROW_LABEL_GAP = 8;
 
@@ -42,16 +41,14 @@ export function drawDateTile(
   const dayClasses = getClasses(dateContext);
 
   tile.setAttribute("fill", dayColor);
-  if (
-    dateContext.isPast &&
-    !dateContext.isPresent &&
-    colorSettings.fadePastDates
-  ) {
-    const brightness =
-      typeof colorSettings.fadePastDates === "number"
-        ? colorSettings.fadePastDates
-        : DEFAULT_FADE_BRIGHTNESS;
-    tile.style.filter = `brightness(${brightness})`;
+  const fade =
+    dateContext.isPresent
+      ? undefined
+      : dateContext.isPast
+        ? colorSettings.pastFade
+        : colorSettings.futureFade;
+  if (typeof fade === "number" && fade !== 1) {
+    tile.style.filter = `brightness(${fade})`;
   }
   tile.setAttribute("data-date", dateToDraw.toDateString());
   if (overwrites.note) tile.setAttribute("data-note", overwrites.note);

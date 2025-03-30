@@ -7,11 +7,6 @@ export declare enum Layout {
     Weekday = "weekday",
     Custom = "custom"
 }
-export declare enum PastMode {
-    None = "none",
-    Fade = "fade",
-    Solid = "solid"
-}
 export interface CalendarSettings {
     layout: Layout;
     startDate: DateInput;

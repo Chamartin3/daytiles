@@ -12,14 +12,13 @@ export interface ColorHighlights {
 
 export interface ColorSettings {
   current: string;
-  pastDay: string;
-  futureDay: string;
+  dayColor: string;
+  pastFade?: number;
+  futureFade?: number;
   alternation: AlternationSettings;
   defaultEventColor: string;
   eventTypeColors?: Record<string, string>;
   highlightCurrent?: boolean;
-  fadePastDates?: boolean | number;
-  solidPastColor?: boolean;
   highlight?: ColorHighlights;
 }
 
@@ -32,19 +31,12 @@ export function getColor(
   dateContext: DateContext,
   colorSettings: ColorSettings,
 ): string {
-  const {
-    current: currentColor,
-    pastDay: pastDayColor,
-    futureDay: futureDayColor,
-    alternation,
-    solidPastColor: solidPast,
-  } = colorSettings;
+  const { current: currentColor, dayColor, alternation } = colorSettings;
   const weekdayColors = colorSettings.highlight?.weekdays ?? {};
   const monthColors = colorSettings.highlight?.months ?? {};
   const highlightCurrent = colorSettings.highlightCurrent !== false;
 
   if (highlightCurrent && dateContext.isPresent) return currentColor;
-  if (solidPast && dateContext.isPast && !dateContext.isPresent) return pastDayColor;
   const weekdayMatch = weekdayColors[dateContext.dayOfWeek];
   if (weekdayMatch) return weekdayMatch;
   const monthMatch = monthColors[dateContext.month];
@@ -52,7 +44,7 @@ export function getColor(
   if (shouldAlternate(dateContext, alternation)) {
     return alternation.color;
   }
-  return futureDayColor;
+  return dayColor;
 }
 
 export function getClasses(ctx: Pick<DateContext, "isPresent" | "isPast" | "isFuture">): string[] {

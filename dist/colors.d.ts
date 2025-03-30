@@ -6,14 +6,13 @@ export interface ColorHighlights {
 }
 export interface ColorSettings {
     current: string;
-    pastDay: string;
-    futureDay: string;
+    dayColor: string;
+    pastFade?: number;
+    futureFade?: number;
     alternation: AlternationSettings;
     defaultEventColor: string;
     eventTypeColors?: Record<string, string>;
     highlightCurrent?: boolean;
-    fadePastDates?: boolean | number;
-    solidPastColor?: boolean;
     highlight?: ColorHighlights;
 }
 export declare const DATE_BOX_CLASS = "dateBox";

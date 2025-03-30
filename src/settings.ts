@@ -10,12 +10,6 @@ export enum Layout {
   Custom = "custom",
 }
 
-export enum PastMode {
-  None = "none",
-  Fade = "fade",
-  Solid = "solid",
-}
-
 export interface CalendarSettings {
   layout: Layout;
   startDate: DateInput;
@@ -47,9 +41,8 @@ export const BaseCalendarSettings: CalendarSettings = {
   events: {},
   colors: {
     current: "#FFD700",
-    fadePastDates: true,
-    pastDay: "#555",
-    futureDay: "#eee",
+    dayColor: "#eee",
+    pastFade: 0.6,
     alternation: {
       mode: AlternationMode.Month,
       color: "#d2f0fa",
@@ -57,10 +50,7 @@ export const BaseCalendarSettings: CalendarSettings = {
     },
     defaultEventColor: "#ff5577",
     highlight: {
-      weekdays: {
-        0: "#BAFFC9",
-        6: "#BAFFC9",
-      },
+      weekdays: {},
       months: {},
     },
   },
