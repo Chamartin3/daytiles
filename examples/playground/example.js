@@ -1,4 +1,4 @@
-import { Daytiles, Layout, PastMode, Shape } from "../../dist/index.js";
+import { Daytiles, Layout, Shape } from "../../dist/index.js";
 
 const PRESET_MONTH = "month";
 const PRESET_QUARTER = "quarter";
@@ -32,12 +32,12 @@ const inputs = {
   daysPerRow: $("daysPerRow"),
   startDayOfWeek: $("startDayOfWeek"),
   colorCurrent: $("colorCurrent"),
-  colorPast: $("colorPast"),
-  colorFuture: $("colorFuture"),
+  dayColor: $("dayColor"),
+  pastFade: $("pastFade"),
+  futureFade: $("futureFade"),
   colorAlternation: $("colorAlternation"),
   colorWeekend: $("colorWeekend"),
   shape: $("shape"),
-  pastMode: $("pastMode"),
   highlightCurrent: $("highlightCurrent"),
   alternationMode: $("alternationMode"),
   alternationSize: $("alternationSize"),
@@ -61,16 +61,15 @@ function applySettings() {
     shape: inputs.shape.value,
     colors: {
       current: inputs.colorCurrent.value,
-      pastDay: inputs.colorPast.value,
-      futureDay: inputs.colorFuture.value,
+      dayColor: inputs.dayColor.value,
+      pastFade: parseFloat(inputs.pastFade.value),
+      futureFade: parseFloat(inputs.futureFade.value),
       alternation: {
         mode: inputs.alternationMode.value,
         color: inputs.colorAlternation.value,
         size: parseInt(inputs.alternationSize.value) || 7,
       },
       highlightCurrent: inputs.highlightCurrent.checked,
-      fadePastDates: inputs.pastMode.value === PastMode.Fade,
-      solidPastColor: inputs.pastMode.value === PastMode.Solid,
       highlight: { weekdays, months: {} },
     },
   });
@@ -79,9 +78,6 @@ function applySettings() {
 function render() {
   applySettings();
   dt.render(svg);
-  const bbox = svg.getBBox();
-  svg.setAttribute("width", Math.ceil(bbox.x + bbox.width));
-  svg.setAttribute("height", Math.ceil(bbox.y + bbox.height));
 }
 
 Object.values(inputs).forEach((el) => {

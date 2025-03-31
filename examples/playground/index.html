@@ -61,11 +61,14 @@
           <label>Today
             <input id="colorCurrent" type="color" value="#FFD700" />
           </label>
-          <label>Past day
-            <input id="colorPast" type="color" value="#555555" />
+          <label>Day
+            <input id="dayColor" type="color" value="#eeeeee" />
           </label>
-          <label>Future day
-            <input id="colorFuture" type="color" value="#eeeeee" />
+          <label>Past fade
+            <input id="pastFade" type="number" value="0.6" min="0" max="1" step="0.05" />
+          </label>
+          <label>Future fade
+            <input id="futureFade" type="number" value="1" min="0" max="1" step="0.05" />
           </label>
           <label>Alternation
             <input id="colorAlternation" type="color" value="#d2f0fa" />
@@ -83,13 +86,6 @@
               <option value="roundedRect">Rounded</option>
               <option value="circle">Circle</option>
               <option value="diamond">Diamond</option>
-            </select>
-          </label>
-          <label>Past dates
-            <select id="pastMode">
-              <option value="none">None</option>
-              <option value="fade" selected>Fade</option>
-              <option value="solid">Solid</option>
             </select>
           </label>
           <label class="checkbox">

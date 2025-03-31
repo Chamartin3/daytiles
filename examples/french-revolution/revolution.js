@@ -1,4 +1,18 @@
 import { Daytiles, Layout, Shape, AlternationMode } from "../../dist/index.js";
+import { bindWiki } from "../utils/wiki.js";
+
+const COLORS = {
+  current: "#0055a4",
+  dayColor: "#dfe7f7",
+  pastFade: 1,
+  alternation: { mode: AlternationMode.Year, color: "#a8b8d9", size: 1 },
+  eventTypeColors: {
+    political: "#0055a4",
+    uprising: "#6e6aaa",
+    terror: "#c94a6e",
+    war: "#ef4135",
+  },
+};
 
 const dt = new Daytiles({
   layout: Layout.Custom,
@@ -10,59 +24,15 @@ const dt = new Daytiles({
   daysPerRow: 90,
   startDayOfWeek: 0,
   showLabels: false,
-  colors: {
-    current: "#0055a4",
-    fadePastDates: false,
-    pastDay: "#dfe7f7",
-    futureDay: "#dfe7f7",
-    alternation: { mode: AlternationMode.Year, color: "#a8b8d9", size: 1 },
-    highlight: { weekdays: {}, months: {} },
-    eventTypeColors: {
-      political: "#0055a4",
-      uprising: "#6e6aaa",
-      terror: "#c94a6e",
-      war: "#ef4135",
-    },
-  },
+  colors: COLORS,
 });
 
 const events = await fetch("./events.json").then((r) => r.json());
-for (const evt of events) dt.addEvent(evt);
+dt.addEvents(events);
 
-const info = document.getElementById("info");
-const wiki = document.getElementById("wiki");
-
-async function loadWiki(slug) {
-  const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${slug}`;
-  const res = await fetch(url);
-  if (!res.ok) {
-    wiki.innerHTML = `<p>Could not load article.</p>`;
-    wiki.classList.add("loaded");
-    return;
-  }
-  const data = await res.json();
-  const thumb = data.thumbnail?.source
-    ? `<img src="${data.thumbnail.source}" alt="">`
-    : "";
-  const link = `https://en.wikipedia.org/wiki/${slug}`;
-  wiki.innerHTML = `
-    <h2>${data.title}</h2>
-    ${thumb}
-    <div class="extract">${data.extract_html ?? ""}</div>
-    <a class="more" href="${link}" target="_blank" rel="noopener">Read on Wikipedia →</a>
-  `;
-  wiki.classList.add("loaded");
-}
-
-dt.onTileClick(({ date, event }) => {
-  info.textContent = event.note
-    ? `${date.toDateString()} — ${event.note}`
-    : date.toDateString();
-  if (event.wiki) loadWiki(event.wiki);
+bindWiki(dt, {
+  wiki: document.getElementById("wiki"),
+  info: document.getElementById("info"),
 });
 
-const svg = document.getElementById("calendar");
-dt.render(svg);
-const bbox = svg.getBBox();
-svg.setAttribute("width", Math.ceil(bbox.x + bbox.width));
-svg.setAttribute("height", Math.ceil(bbox.y + bbox.height));
+dt.render(document.getElementById("calendar"));
