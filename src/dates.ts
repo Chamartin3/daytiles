@@ -9,8 +9,13 @@ export interface DateContext {
   weekOfYear: number;
 }
 
-export type EventInfo = { color?: string; note?: string; wiki?: string };
-export type EventsDict = Record<string, EventInfo>;
+export type EventInfo = {
+  color?: string;
+  note?: string;
+  wiki?: string;
+  type?: string;
+};
+export type EventsDict = Record<string, EventInfo[]>;
 
 export type DateInput = Date | string;
 
@@ -53,11 +58,11 @@ export function getRangeDates(
   };
 }
 
-export function getEvent(date: Date, events: EventsDict): EventInfo {
+export function getEvents(date: Date, events: EventsDict): EventInfo[] {
   const y = String(date.getFullYear()).padStart(4, "0");
   const m = String(date.getMonth() + 1).padStart(2, "0");
   const d = String(date.getDate()).padStart(2, "0");
-  return events[`${y}-${m}-${d}`] ?? {};
+  return events[`${y}-${m}-${d}`] ?? [];
 }
 
 const MS_PER_DAY = 86_400_000;

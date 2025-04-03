@@ -20,6 +20,7 @@ export interface ColorSettings {
   eventTypeColors?: Record<string, string>;
   highlightCurrent?: boolean;
   highlight?: ColorHighlights;
+  heatmap?: boolean;
 }
 
 export const DATE_BOX_CLASS = "dateBox";
@@ -45,6 +46,36 @@ export function getColor(
     return alternation.color;
   }
   return dayColor;
+}
+
+function parseHex(hex: string): [number, number, number] | null {
+  let h = hex.trim().replace(/^#/, "");
+  if (h.length === 3) h = h.split("").map((c) => c + c).join("");
+  if (h.length !== 6) return null;
+  const n = parseInt(h, 16);
+  if (Number.isNaN(n)) return null;
+  return [(n >> 16) & 0xff, (n >> 8) & 0xff, n & 0xff];
+}
+
+function toHex(rgb: [number, number, number]): string {
+  return (
+    "#" +
+    rgb
+      .map((v) => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, "0"))
+      .join("")
+  );
+}
+
+export function lerpHex(a: string, b: string, t: number): string {
+  const ca = parseHex(a);
+  const cb = parseHex(b);
+  if (!ca || !cb) return b;
+  const k = Math.max(0, Math.min(1, t));
+  return toHex([
+    ca[0] + (cb[0] - ca[0]) * k,
+    ca[1] + (cb[1] - ca[1]) * k,
+    ca[2] + (cb[2] - ca[2]) * k,
+  ]);
 }
 
 export function getClasses(ctx: Pick<DateContext, "isPresent" | "isPast" | "isFuture">): string[] {

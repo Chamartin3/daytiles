@@ -9,9 +9,10 @@ const SATURDAY = 6;
 
 const svg = document.getElementById("calendar");
 const dt = new Daytiles();
-dt.onTileClick(({ date, event }) => {
-  const note = event.note ? ` — ${event.note}` : "";
-  console.log(`Clicked ${date.toDateString()}${note}`);
+dt.onTileClick(({ date, events }) => {
+  const notes = events.map((e) => e.note).filter(Boolean).join(" • ");
+  const suffix = notes ? ` — ${notes}` : "";
+  console.log(`Clicked ${date.toDateString()} (${events.length})${suffix}`);
 });
 const eventIdsByButton = new Map();
 
@@ -43,6 +44,7 @@ const inputs = {
   alternationSize: $("alternationSize"),
   highlightWeekend: $("highlightWeekend"),
   showLabels: $("showLabels"),
+  heatmap: $("heatmap"),
 };
 
 function applySettings() {
@@ -71,6 +73,7 @@ function applySettings() {
       },
       highlightCurrent: inputs.highlightCurrent.checked,
       highlight: { weekdays, months: {} },
+      heatmap: inputs.heatmap.checked,
     },
   });
 }
@@ -89,6 +92,7 @@ const eventList = document.getElementById("eventList");
 const eventStartInput = document.getElementById("eventStart");
 const eventEndInput = document.getElementById("eventEnd");
 const eventColorInput = document.getElementById("eventColor");
+const eventTypeInput = document.getElementById("eventType");
 const eventNoteInput = document.getElementById("eventNote");
 
 function refreshEventList() {
@@ -169,11 +173,13 @@ document.getElementById("addEvent").addEventListener("click", () => {
     start,
     end,
     color: eventColorInput.value,
+    type: eventTypeInput.value || undefined,
     note: eventNoteInput.value,
   });
   eventStartInput.value = "";
   eventEndInput.value = "";
   eventNoteInput.value = "";
+  eventTypeInput.value = "";
   refreshEventList();
   render();
 });

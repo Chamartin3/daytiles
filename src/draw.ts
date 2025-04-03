@@ -1,8 +1,8 @@
-import { getColor, getClasses, type ColorSettings } from "./colors.js";
+import { getColor, getClasses, lerpHex, type ColorSettings } from "./colors.js";
 import {
   getDateContext,
   getRangeDates,
-  getEvent,
+  getEvents,
   type EventInfo,
 } from "./dates.js";
 import { Layout, type CalendarSettings } from "./settings.js";
@@ -15,7 +15,7 @@ const ROW_LABEL_GAP = 8;
 
 export interface TileClickEvent {
   date: Date;
-  event: EventInfo;
+  events: EventInfo[];
   domEvent: MouseEvent;
 }
 
@@ -26,18 +26,57 @@ interface TileOptions {
   y: number;
   size: number;
   shape: Shape;
-  overwrites: EventInfo;
+  events: EventInfo[];
   colorSettings: ColorSettings;
+  maxCount: number;
   onClick?: TileClickHandler;
+}
+
+function dominantTypeCount(events: EventInfo[]): { type: string | undefined; count: number } {
+  const counts = new Map<string | undefined, number>();
+  for (const e of events) counts.set(e.type, (counts.get(e.type) ?? 0) + 1);
+  let dom: string | undefined;
+  let max = 0;
+  for (const [t, c] of counts) {
+    if (c > max) {
+      max = c;
+      dom = t;
+    }
+  }
+  return { type: dom, count: max };
+}
+
+function resolveTileFill(
+  events: EventInfo[],
+  baseColor: string,
+  colorSettings: ColorSettings,
+  maxCount: number,
+): string {
+  if (events.length === 0) return baseColor;
+  const typeColors = colorSettings.eventTypeColors ?? {};
+  if (!colorSettings.heatmap) {
+    const first = events[0]!;
+    return (
+      first.color ||
+      (first.type ? typeColors[first.type] : undefined) ||
+      colorSettings.defaultEventColor
+    );
+  }
+  const { type } = dominantTypeCount(events);
+  const typeColor =
+    (type ? typeColors[type] : undefined) ?? colorSettings.defaultEventColor;
+  const intensity = maxCount > 0 ? events.length / maxCount : 1;
+  return lerpHex(baseColor, typeColor, intensity);
 }
 
 export function drawDateTile(
   dateToDraw: Date,
-  { x, y, size, shape, overwrites, colorSettings, onClick }: TileOptions,
+  { x, y, size, shape, events, colorSettings, maxCount, onClick }: TileOptions,
 ): SVGElement {
   const dateContext = getDateContext(dateToDraw);
   const tile = createTile(shape, x, y, size);
-  const dayColor = overwrites.color || getColor(dateContext, colorSettings);
+  const baseColor = getColor(dateContext, colorSettings);
+  const dayColor = resolveTileFill(events, baseColor, colorSettings, maxCount);
   const dayClasses = getClasses(dateContext);
 
   tile.setAttribute("fill", dayColor);
@@ -51,13 +90,18 @@ export function drawDateTile(
     tile.style.filter = `brightness(${fade})`;
   }
   tile.setAttribute("data-date", dateToDraw.toDateString());
-  if (overwrites.note) tile.setAttribute("data-note", overwrites.note);
+  const joinedNote = events
+    .map((e) => e.note)
+    .filter((n): n is string => Boolean(n))
+    .join(" • ");
+  if (joinedNote) tile.setAttribute("data-note", joinedNote);
+  if (events.length > 1) tile.setAttribute("data-count", String(events.length));
   tile.addEventListener("mouseover", showDateTooltip);
   tile.addEventListener("mouseout", hideDateTooltip);
   if (onClick) {
     tile.style.cursor = "pointer";
     tile.addEventListener("click", (domEvent) => {
-      onClick({ date: new Date(dateToDraw), event: overwrites, domEvent });
+      onClick({ date: new Date(dateToDraw), events, domEvent });
     });
   }
   dayClasses.forEach((c) => tile.classList.add(c));
@@ -205,6 +249,12 @@ export function drawCalendar(
     offsetX = maxWidth + ROW_LABEL_GAP;
   }
 
+  let maxCount = 0;
+  for (const { date } of cells) {
+    const list = getEvents(date, events);
+    if (list.length > maxCount) maxCount = list.length;
+  }
+
   for (const { date, row: r, col: c } of cells) {
     svgElement.appendChild(
       drawDateTile(date, {
@@ -212,8 +262,9 @@ export function drawCalendar(
         y: r * (squareSize + gap),
         size: squareSize,
         shape,
-        overwrites: getEvent(date, events),
+        events: getEvents(date, events),
         colorSettings,
+        maxCount,
         onClick: onTileClick,
       }),
     );

@@ -51,6 +51,28 @@ function getColor(dateContext, colorSettings) {
   }
   return dayColor;
 }
+function parseHex(hex) {
+  let h = hex.trim().replace(/^#/, "");
+  if (h.length === 3) h = h.split("").map((c) => c + c).join("");
+  if (h.length !== 6) return null;
+  const n = parseInt(h, 16);
+  if (Number.isNaN(n)) return null;
+  return [n >> 16 & 255, n >> 8 & 255, n & 255];
+}
+function toHex(rgb) {
+  return "#" + rgb.map((v) => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, "0")).join("");
+}
+function lerpHex(a, b, t) {
+  const ca = parseHex(a);
+  const cb = parseHex(b);
+  if (!ca || !cb) return b;
+  const k = Math.max(0, Math.min(1, t));
+  return toHex([
+    ca[0] + (cb[0] - ca[0]) * k,
+    ca[1] + (cb[1] - ca[1]) * k,
+    ca[2] + (cb[2] - ca[2]) * k
+  ]);
+}
 function getClasses(ctx) {
   const classList = [DATE_BOX_CLASS];
   if (ctx.isFuture) classList.push(FUTURE_DAY_CLASS);
@@ -91,11 +113,11 @@ function getRangeDates(initial, final, year = null) {
     endDate: toDate(final, dateYear, true)
   };
 }
-function getEvent(date, events) {
+function getEvents(date, events) {
   const y = String(date.getFullYear()).padStart(4, "0");
   const m = String(date.getMonth() + 1).padStart(2, "0");
   const d = String(date.getDate()).padStart(2, "0");
-  return events[`${y}-${m}-${d}`] ?? {};
+  return events[`${y}-${m}-${d}`] ?? [];
 }
 var MS_PER_DAY = 864e5;
 function dayOfYear(date) {
@@ -223,6 +245,7 @@ var TOOLTIP_ID = "daytiles-tooltip";
 var TOOLTIP_CLASS = "tooltip-box";
 var DATA_DATE_ATTR = "data-date";
 var DATA_NOTE_ATTR = "data-note";
+var DATA_COUNT_ATTR = "data-count";
 function ensureTooltip() {
   let el = document.getElementById(TOOLTIP_ID);
   if (!el) {
@@ -252,11 +275,19 @@ function showDateTooltip(event) {
   const target = event.target;
   const date = target.getAttribute(DATA_DATE_ATTR);
   const note = target.getAttribute(DATA_NOTE_ATTR);
+  const count = target.getAttribute(DATA_COUNT_ATTR);
   const el = ensureTooltip();
   el.innerHTML = "";
   const dateLine = document.createElement("div");
   dateLine.textContent = date;
   el.appendChild(dateLine);
+  if (count) {
+    const countLine = document.createElement("div");
+    countLine.textContent = `${count} events`;
+    countLine.style.opacity = "0.85";
+    countLine.style.marginTop = "2px";
+    el.appendChild(countLine);
+  }
   if (note) {
     const noteLine = document.createElement("div");
     noteLine.textContent = note;
@@ -279,10 +310,36 @@ function hideDateTooltip() {
 var SVG_NS2 = "http://www.w3.org/2000/svg";
 var ROW_LABEL_CLASS = "row-label";
 var ROW_LABEL_GAP = 8;
-function drawDateTile(dateToDraw, { x, y, size, shape, overwrites, colorSettings, onClick }) {
+function dominantTypeCount(events) {
+  const counts = /* @__PURE__ */ new Map();
+  for (const e of events) counts.set(e.type, (counts.get(e.type) ?? 0) + 1);
+  let dom;
+  let max = 0;
+  for (const [t, c] of counts) {
+    if (c > max) {
+      max = c;
+      dom = t;
+    }
+  }
+  return { type: dom, count: max };
+}
+function resolveTileFill(events, baseColor, colorSettings, maxCount) {
+  if (events.length === 0) return baseColor;
+  const typeColors = colorSettings.eventTypeColors ?? {};
+  if (!colorSettings.heatmap) {
+    const first = events[0];
+    return first.color || (first.type ? typeColors[first.type] : void 0) || colorSettings.defaultEventColor;
+  }
+  const { type } = dominantTypeCount(events);
+  const typeColor = (type ? typeColors[type] : void 0) ?? colorSettings.defaultEventColor;
+  const intensity = maxCount > 0 ? events.length / maxCount : 1;
+  return lerpHex(baseColor, typeColor, intensity);
+}
+function drawDateTile(dateToDraw, { x, y, size, shape, events, colorSettings, maxCount, onClick }) {
   const dateContext = getDateContext(dateToDraw);
   const tile = createTile(shape, x, y, size);
-  const dayColor = overwrites.color || getColor(dateContext, colorSettings);
+  const baseColor = getColor(dateContext, colorSettings);
+  const dayColor = resolveTileFill(events, baseColor, colorSettings, maxCount);
   const dayClasses = getClasses(dateContext);
   tile.setAttribute("fill", dayColor);
   const fade = dateContext.isPresent ? void 0 : dateContext.isPast ? colorSettings.pastFade : colorSettings.futureFade;
@@ -290,13 +347,15 @@ function drawDateTile(dateToDraw, { x, y, size, shape, overwrites, colorSettings
     tile.style.filter = `brightness(${fade})`;
   }
   tile.setAttribute("data-date", dateToDraw.toDateString());
-  if (overwrites.note) tile.setAttribute("data-note", overwrites.note);
+  const joinedNote = events.map((e) => e.note).filter((n) => Boolean(n)).join(" \u2022 ");
+  if (joinedNote) tile.setAttribute("data-note", joinedNote);
+  if (events.length > 1) tile.setAttribute("data-count", String(events.length));
   tile.addEventListener("mouseover", showDateTooltip);
   tile.addEventListener("mouseout", hideDateTooltip);
   if (onClick) {
     tile.style.cursor = "pointer";
     tile.addEventListener("click", (domEvent) => {
-      onClick({ date: new Date(dateToDraw), event: overwrites, domEvent });
+      onClick({ date: new Date(dateToDraw), events, domEvent });
     });
   }
   dayClasses.forEach((c) => tile.classList.add(c));
@@ -420,6 +479,11 @@ function drawCalendar(svgElement, settings, onTileClick) {
     }
     offsetX = maxWidth + ROW_LABEL_GAP;
   }
+  let maxCount = 0;
+  for (const { date } of cells) {
+    const list = getEvents(date, events);
+    if (list.length > maxCount) maxCount = list.length;
+  }
   for (const { date, row: r, col: c } of cells) {
     svgElement.appendChild(
       drawDateTile(date, {
@@ -427,8 +491,9 @@ function drawCalendar(svgElement, settings, onTileClick) {
         y: r * (squareSize + gap),
         size: squareSize,
         shape,
-        overwrites: getEvent(date, events),
+        events: getEvents(date, events),
         colorSettings,
+        maxCount,
         onClick: onTileClick
       })
     );
@@ -542,12 +607,8 @@ var Daytiles = class {
       while (cursor.getTime() <= end.getTime()) {
         const key = dateKey(cursor);
         const note = entry.note ?? key;
-        const existing = out[key];
-        out[key] = {
-          color: existing?.color ?? color,
-          note: existing?.note ? `${existing.note} \u2022 ${note}` : note,
-          wiki: existing?.wiki ?? entry.wiki
-        };
+        const list = out[key] ?? (out[key] = []);
+        list.push({ color, note, wiki: entry.wiki, type: entry.type });
         cursor.setTime(cursor.getTime() + MS_PER_DAY2);
       }
     }

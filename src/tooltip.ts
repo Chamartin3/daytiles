@@ -2,6 +2,7 @@ const TOOLTIP_ID = "daytiles-tooltip";
 const TOOLTIP_CLASS = "tooltip-box";
 const DATA_DATE_ATTR = "data-date";
 const DATA_NOTE_ATTR = "data-note";
+const DATA_COUNT_ATTR = "data-count";
 
 function ensureTooltip(): HTMLDivElement {
   let el = document.getElementById(TOOLTIP_ID) as HTMLDivElement | null;
@@ -33,11 +34,19 @@ export function showDateTooltip(event: Event): void {
   const target = event.target as Element;
   const date = target.getAttribute(DATA_DATE_ATTR);
   const note = target.getAttribute(DATA_NOTE_ATTR);
+  const count = target.getAttribute(DATA_COUNT_ATTR);
   const el = ensureTooltip();
   el.innerHTML = "";
   const dateLine = document.createElement("div");
   dateLine.textContent = date;
   el.appendChild(dateLine);
+  if (count) {
+    const countLine = document.createElement("div");
+    countLine.textContent = `${count} events`;
+    countLine.style.opacity = "0.85";
+    countLine.style.marginTop = "2px";
+    el.appendChild(countLine);
+  }
   if (note) {
     const noteLine = document.createElement("div");
     noteLine.textContent = note;

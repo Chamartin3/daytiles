@@ -156,12 +156,8 @@ export class Daytiles {
       while (cursor.getTime() <= end.getTime()) {
         const key = dateKey(cursor);
         const note = entry.note ?? key;
-        const existing = out[key];
-        out[key] = {
-          color: existing?.color ?? color,
-          note: existing?.note ? `${existing.note} • ${note}` : note,
-          wiki: existing?.wiki ?? entry.wiki,
-        };
+        const list = out[key] ?? (out[key] = []);
+        list.push({ color, note, wiki: entry.wiki, type: entry.type });
         cursor.setTime(cursor.getTime() + MS_PER_DAY);
       }
     }
