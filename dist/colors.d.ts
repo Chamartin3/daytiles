@@ -15,6 +15,8 @@ export interface ColorSettings {
     highlightCurrent?: boolean;
     highlight?: ColorHighlights;
     heatmap?: boolean;
+    heatmapLow?: number;
+    heatmapHigh?: number;
 }
 export declare const DATE_BOX_CLASS = "dateBox";
 export declare const FUTURE_DAY_CLASS = "future-day";

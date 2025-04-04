@@ -13,6 +13,7 @@ export type EventInfo = {
     note?: string;
     wiki?: string;
     type?: string;
+    weight?: number;
 };
 export type EventsDict = Record<string, EventInfo[]>;
 export type DateInput = Date | string;

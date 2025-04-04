@@ -10,6 +10,7 @@ export interface DaytilesEventInput {
     type?: string;
     note?: string;
     wiki?: string;
+    weight?: number;
 }
 export interface DaytilesEvent extends DaytilesEventInput {
     id: DaytilesEventId;

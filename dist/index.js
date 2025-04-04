@@ -233,6 +233,9 @@ var BaseCalendarSettings = {
       size: 7
     },
     defaultEventColor: "#ff5577",
+    heatmap: false,
+    heatmapLow: 0.2,
+    heatmapHigh: 0.35,
     highlight: {
       weekdays: {},
       months: {}
@@ -246,6 +249,7 @@ var TOOLTIP_CLASS = "tooltip-box";
 var DATA_DATE_ATTR = "data-date";
 var DATA_NOTE_ATTR = "data-note";
 var DATA_COUNT_ATTR = "data-count";
+var DATA_WEIGHT_ATTR = "data-weight";
 function ensureTooltip() {
   let el = document.getElementById(TOOLTIP_ID);
   if (!el) {
@@ -276,6 +280,7 @@ function showDateTooltip(event) {
   const date = target.getAttribute(DATA_DATE_ATTR);
   const note = target.getAttribute(DATA_NOTE_ATTR);
   const count = target.getAttribute(DATA_COUNT_ATTR);
+  const weight = target.getAttribute(DATA_WEIGHT_ATTR);
   const el = ensureTooltip();
   el.innerHTML = "";
   const dateLine = document.createElement("div");
@@ -287,6 +292,13 @@ function showDateTooltip(event) {
     countLine.style.opacity = "0.85";
     countLine.style.marginTop = "2px";
     el.appendChild(countLine);
+  }
+  if (weight) {
+    const weightLine = document.createElement("div");
+    weightLine.textContent = `weight: ${weight}`;
+    weightLine.style.opacity = "0.85";
+    weightLine.style.marginTop = "2px";
+    el.appendChild(weightLine);
   }
   if (note) {
     const noteLine = document.createElement("div");
@@ -310,6 +322,11 @@ function hideDateTooltip() {
 var SVG_NS2 = "http://www.w3.org/2000/svg";
 var ROW_LABEL_CLASS = "row-label";
 var ROW_LABEL_GAP = 8;
+function sumWeights(events) {
+  let total = 0;
+  for (const e of events) total += e.weight ?? 1;
+  return total;
+}
 function dominantTypeCount(events) {
   const counts = /* @__PURE__ */ new Map();
   for (const e of events) counts.set(e.type, (counts.get(e.type) ?? 0) + 1);
@@ -323,7 +340,7 @@ function dominantTypeCount(events) {
   }
   return { type: dom, count: max };
 }
-function resolveTileFill(events, baseColor, colorSettings, maxCount) {
+function resolveTileFill(events, baseColor, colorSettings, maxWeight) {
   if (events.length === 0) return baseColor;
   const typeColors = colorSettings.eventTypeColors ?? {};
   if (!colorSettings.heatmap) {
@@ -332,14 +349,19 @@ function resolveTileFill(events, baseColor, colorSettings, maxCount) {
   }
   const { type } = dominantTypeCount(events);
   const typeColor = (type ? typeColors[type] : void 0) ?? colorSettings.defaultEventColor;
-  const intensity = maxCount > 0 ? events.length / maxCount : 1;
-  return lerpHex(baseColor, typeColor, intensity);
+  const low = colorSettings.heatmapLow ?? 0.2;
+  const high = colorSettings.heatmapHigh ?? 0.35;
+  const lowEnd = lerpHex("#ffffff", typeColor, low);
+  const highEnd = lerpHex(typeColor, "#000000", high);
+  const w = sumWeights(events);
+  const t = maxWeight > 1 ? (w - 1) / (maxWeight - 1) : 1;
+  return lerpHex(lowEnd, highEnd, t);
 }
-function drawDateTile(dateToDraw, { x, y, size, shape, events, colorSettings, maxCount, onClick }) {
+function drawDateTile(dateToDraw, { x, y, size, shape, events, colorSettings, maxWeight, onClick }) {
   const dateContext = getDateContext(dateToDraw);
   const tile = createTile(shape, x, y, size);
   const baseColor = getColor(dateContext, colorSettings);
-  const dayColor = resolveTileFill(events, baseColor, colorSettings, maxCount);
+  const dayColor = resolveTileFill(events, baseColor, colorSettings, maxWeight);
   const dayClasses = getClasses(dateContext);
   tile.setAttribute("fill", dayColor);
   const fade = dateContext.isPresent ? void 0 : dateContext.isPast ? colorSettings.pastFade : colorSettings.futureFade;
@@ -350,6 +372,10 @@ function drawDateTile(dateToDraw, { x, y, size, shape, events, colorSettings, ma
   const joinedNote = events.map((e) => e.note).filter((n) => Boolean(n)).join(" \u2022 ");
   if (joinedNote) tile.setAttribute("data-note", joinedNote);
   if (events.length > 1) tile.setAttribute("data-count", String(events.length));
+  const totalWeight = sumWeights(events);
+  if (events.length > 0 && totalWeight !== events.length) {
+    tile.setAttribute("data-weight", String(totalWeight));
+  }
   tile.addEventListener("mouseover", showDateTooltip);
   tile.addEventListener("mouseout", hideDateTooltip);
   if (onClick) {
@@ -479,10 +505,12 @@ function drawCalendar(svgElement, settings, onTileClick) {
     }
     offsetX = maxWidth + ROW_LABEL_GAP;
   }
-  let maxCount = 0;
+  let maxWeight = 0;
   for (const { date } of cells) {
     const list = getEvents(date, events);
-    if (list.length > maxCount) maxCount = list.length;
+    let w = 0;
+    for (const e of list) w += e.weight ?? 1;
+    if (w > maxWeight) maxWeight = w;
   }
   for (const { date, row: r, col: c } of cells) {
     svgElement.appendChild(
@@ -493,7 +521,7 @@ function drawCalendar(svgElement, settings, onTileClick) {
         shape,
         events: getEvents(date, events),
         colorSettings,
-        maxCount,
+        maxWeight,
         onClick: onTileClick
       })
     );
@@ -608,7 +636,13 @@ var Daytiles = class {
         const key = dateKey(cursor);
         const note = entry.note ?? key;
         const list = out[key] ?? (out[key] = []);
-        list.push({ color, note, wiki: entry.wiki, type: entry.type });
+        list.push({
+          color,
+          note,
+          wiki: entry.wiki,
+          type: entry.type,
+          weight: entry.weight
+        });
         cursor.setTime(cursor.getTime() + MS_PER_DAY2);
       }
     }

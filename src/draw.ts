@@ -28,8 +28,14 @@ interface TileOptions {
   shape: Shape;
   events: EventInfo[];
   colorSettings: ColorSettings;
-  maxCount: number;
+  maxWeight: number;
   onClick?: TileClickHandler;
+}
+
+function sumWeights(events: EventInfo[]): number {
+  let total = 0;
+  for (const e of events) total += e.weight ?? 1;
+  return total;
 }
 
 function dominantTypeCount(events: EventInfo[]): { type: string | undefined; count: number } {
@@ -50,7 +56,7 @@ function resolveTileFill(
   events: EventInfo[],
   baseColor: string,
   colorSettings: ColorSettings,
-  maxCount: number,
+  maxWeight: number,
 ): string {
   if (events.length === 0) return baseColor;
   const typeColors = colorSettings.eventTypeColors ?? {};
@@ -65,18 +71,23 @@ function resolveTileFill(
   const { type } = dominantTypeCount(events);
   const typeColor =
     (type ? typeColors[type] : undefined) ?? colorSettings.defaultEventColor;
-  const intensity = maxCount > 0 ? events.length / maxCount : 1;
-  return lerpHex(baseColor, typeColor, intensity);
+  const low = colorSettings.heatmapLow ?? 0.2;
+  const high = colorSettings.heatmapHigh ?? 0.35;
+  const lowEnd = lerpHex("#ffffff", typeColor, low);
+  const highEnd = lerpHex(typeColor, "#000000", high);
+  const w = sumWeights(events);
+  const t = maxWeight > 1 ? (w - 1) / (maxWeight - 1) : 1;
+  return lerpHex(lowEnd, highEnd, t);
 }
 
 export function drawDateTile(
   dateToDraw: Date,
-  { x, y, size, shape, events, colorSettings, maxCount, onClick }: TileOptions,
+  { x, y, size, shape, events, colorSettings, maxWeight, onClick }: TileOptions,
 ): SVGElement {
   const dateContext = getDateContext(dateToDraw);
   const tile = createTile(shape, x, y, size);
   const baseColor = getColor(dateContext, colorSettings);
-  const dayColor = resolveTileFill(events, baseColor, colorSettings, maxCount);
+  const dayColor = resolveTileFill(events, baseColor, colorSettings, maxWeight);
   const dayClasses = getClasses(dateContext);
 
   tile.setAttribute("fill", dayColor);
@@ -96,6 +107,10 @@ export function drawDateTile(
     .join(" • ");
   if (joinedNote) tile.setAttribute("data-note", joinedNote);
   if (events.length > 1) tile.setAttribute("data-count", String(events.length));
+  const totalWeight = sumWeights(events);
+  if (events.length > 0 && totalWeight !== events.length) {
+    tile.setAttribute("data-weight", String(totalWeight));
+  }
   tile.addEventListener("mouseover", showDateTooltip);
   tile.addEventListener("mouseout", hideDateTooltip);
   if (onClick) {
@@ -249,10 +264,12 @@ export function drawCalendar(
     offsetX = maxWidth + ROW_LABEL_GAP;
   }
 
-  let maxCount = 0;
+  let maxWeight = 0;
   for (const { date } of cells) {
     const list = getEvents(date, events);
-    if (list.length > maxCount) maxCount = list.length;
+    let w = 0;
+    for (const e of list) w += e.weight ?? 1;
+    if (w > maxWeight) maxWeight = w;
   }
 
   for (const { date, row: r, col: c } of cells) {
@@ -264,7 +281,7 @@ export function drawCalendar(
         shape,
         events: getEvents(date, events),
         colorSettings,
-        maxCount,
+        maxWeight,
         onClick: onTileClick,
       }),
     );

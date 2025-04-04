@@ -49,6 +49,9 @@ export const BaseCalendarSettings: CalendarSettings = {
       size: 7,
     },
     defaultEventColor: "#ff5577",
+    heatmap: false,
+    heatmapLow: 0.2,
+    heatmapHigh: 0.35,
     highlight: {
       weekdays: {},
       months: {},

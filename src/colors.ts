@@ -21,6 +21,8 @@ export interface ColorSettings {
   highlightCurrent?: boolean;
   highlight?: ColorHighlights;
   heatmap?: boolean;
+  heatmapLow?: number;
+  heatmapHigh?: number;
 }
 
 export const DATE_BOX_CLASS = "dateBox";

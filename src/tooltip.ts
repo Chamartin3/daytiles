@@ -3,6 +3,7 @@ const TOOLTIP_CLASS = "tooltip-box";
 const DATA_DATE_ATTR = "data-date";
 const DATA_NOTE_ATTR = "data-note";
 const DATA_COUNT_ATTR = "data-count";
+const DATA_WEIGHT_ATTR = "data-weight";
 
 function ensureTooltip(): HTMLDivElement {
   let el = document.getElementById(TOOLTIP_ID) as HTMLDivElement | null;
@@ -35,6 +36,7 @@ export function showDateTooltip(event: Event): void {
   const date = target.getAttribute(DATA_DATE_ATTR);
   const note = target.getAttribute(DATA_NOTE_ATTR);
   const count = target.getAttribute(DATA_COUNT_ATTR);
+  const weight = target.getAttribute(DATA_WEIGHT_ATTR);
   const el = ensureTooltip();
   el.innerHTML = "";
   const dateLine = document.createElement("div");
@@ -46,6 +48,13 @@ export function showDateTooltip(event: Event): void {
     countLine.style.opacity = "0.85";
     countLine.style.marginTop = "2px";
     el.appendChild(countLine);
+  }
+  if (weight) {
+    const weightLine = document.createElement("div");
+    weightLine.textContent = `weight: ${weight}`;
+    weightLine.style.opacity = "0.85";
+    weightLine.style.marginTop = "2px";
+    el.appendChild(weightLine);
   }
   if (note) {
     const noteLine = document.createElement("div");

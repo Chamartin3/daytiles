@@ -15,6 +15,7 @@ export interface DaytilesEventInput {
   type?: string;
   note?: string;
   wiki?: string;
+  weight?: number;
 }
 
 export interface DaytilesEvent extends DaytilesEventInput {
@@ -157,7 +158,13 @@ export class Daytiles {
         const key = dateKey(cursor);
         const note = entry.note ?? key;
         const list = out[key] ?? (out[key] = []);
-        list.push({ color, note, wiki: entry.wiki, type: entry.type });
+        list.push({
+          color,
+          note,
+          wiki: entry.wiki,
+          type: entry.type,
+          weight: entry.weight,
+        });
         cursor.setTime(cursor.getTime() + MS_PER_DAY);
       }
     }

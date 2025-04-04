@@ -15,10 +15,10 @@ interface TileOptions {
     shape: Shape;
     events: EventInfo[];
     colorSettings: ColorSettings;
-    maxCount: number;
+    maxWeight: number;
     onClick?: TileClickHandler;
 }
-export declare function drawDateTile(dateToDraw: Date, { x, y, size, shape, events, colorSettings, maxCount, onClick }: TileOptions): SVGElement;
+export declare function drawDateTile(dateToDraw: Date, { x, y, size, shape, events, colorSettings, maxWeight, onClick }: TileOptions): SVGElement;
 export declare function drawCalendar(svgElement: SVGSVGElement, settings: CalendarSettings, onTileClick?: TileClickHandler): void;
 export {};
 //# sourceMappingURL=draw.d.ts.map
