@@ -312,35 +312,6 @@ function seedDefaults() {
   ];
   refreshTypeList();
   refreshTypeOptions();
-
-  const d = (mm, dd) => `${currentYear}-${mm}-${dd}`;
-  const seed = [
-    { start: d("02", "10"), end: d("02", "14"), type: "travel", note: "Conference" },
-    { start: d("03", "03"), type: "work", note: "Sprint review" },
-    { start: d("03", "03"), type: "health", note: "Checkup" },
-    { start: d("03", "03"), type: "work", note: "Demo day" },
-    { start: d("04", "15"), end: d("04", "18"), type: "work", note: "Workshop" },
-    { start: d("04", "16"), type: "health", note: "Dentist" },
-    { start: d("05", "01"), type: "travel", note: "Flight" },
-    { start: d("05", "02"), type: "travel", note: "Hotel" },
-    { start: d("05", "02"), type: "work", note: "Client" },
-    { start: d("06", "20"), end: d("06", "22"), type: "health", note: "Retreat" },
-    { start: d("07", "04"), type: "travel", note: "Holiday" },
-    { start: d("07", "04"), type: "health", note: "Rest" },
-    { start: d("07", "04"), type: "work", note: "On call" },
-    { start: d("09", "10"), type: "work", note: "Quarterly" },
-    { start: d("09", "11"), type: "work", note: "Followup" },
-    { start: d("11", "25"), end: d("11", "28"), type: "travel", note: "Trip" },
-    { start: d("11", "27"), type: "health", note: "Yoga" },
-  ];
-  for (const e of seed) {
-    dt.addEvent({
-      start: e.start,
-      end: e.end ?? e.start,
-      type: e.type,
-      note: e.note,
-    });
-  }
   refreshEventList();
 }
 
