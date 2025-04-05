@@ -10,6 +10,83 @@ html {
   margin: 20px;
 }
 
+.config-box {
+  margin: 1.5em 0;
+  border: 1px solid #313244;
+  border-radius: 6px;
+  background: #1e1e2e;
+  color: #cdd6f4;
+}
+
+.config-box > summary {
+  cursor: pointer;
+  padding: 8px 12px;
+  font: 600 13px system-ui, sans-serif;
+  color: #cdd6f4;
+  user-select: none;
+}
+
+.config-box[open] {
+  position: relative;
+}
+
+.config-box pre {
+  margin: 0;
+  padding: 12px;
+  border-top: 1px solid #313244;
+  overflow: auto;
+  font: 12px/1.45 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  color: #cdd6f4;
+  background: #181825;
+  border-radius: 0 0 6px 6px;
+}
+
+.config-box .copy-btn {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  padding: 3px 10px;
+  font: 600 11px system-ui, sans-serif;
+  color: #cdd6f4;
+  background: #313244;
+  border: 1px solid #45475a;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.config-box .copy-btn:hover {
+  background: #45475a;
+}
+
+.config-box .copy-btn.copied {
+  color: #1e1e2e;
+  background: #a6e3a1;
+  border-color: #a6e3a1;
+}
+
+.config-box .tk-key { color: #89b4fa; }
+.config-box .tk-str { color: #a6e3a1; }
+.config-box .tk-num { color: #fab387; }
+.config-box .tk-bool { color: #f38ba8; }
+
+.config-box .tk-color {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.config-box .tk-color .tk-str {
+  text-shadow: 0 0 1px rgba(255, 255, 255, 0.35);
+}
+
+.config-box .tk-swatch {
+  display: inline-block;
+  width: 0.75em;
+  height: 0.75em;
+  border-radius: 2px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
 .tooltip-box {
   background: #222;
   border: 1px solid #000;
