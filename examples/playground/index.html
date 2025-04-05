@@ -6,17 +6,18 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0"
     />
-    <title>Daytiles — Interactive Example</title>
+    <title>Daytiles: Interactive Example</title>
     <link
       rel="stylesheet"
-      href="../../styles.css?v=2"
+      href="../../styles.css?v=3"
     />
     <link
       rel="stylesheet"
-      href="example.css?v=2"
+      href="example.css?v=3"
     />
   </head>
   <body>
+    <p><a href="../">← All examples</a></p>
     <main>
       <header>
         <h1>Daytiles</h1>
@@ -70,12 +71,41 @@
           <label>Future fade
             <input id="futureFade" type="number" value="1" min="0" max="1" step="0.05" />
           </label>
-          <label>Alternation
+          <label>Default event
+            <input id="defaultEventColor" type="color" value="#ff5577" />
+          </label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Highlights</legend>
+          <h4 class="subhead">Alternation</h4>
+          <label>Mode
+            <select id="alternationMode">
+              <option value="none">None</option>
+              <option value="day">Per day</option>
+              <option value="week">Per week</option>
+              <option value="month" selected>Per month</option>
+              <option value="custom">Custom days</option>
+            </select>
+          </label>
+          <label id="alternationSizeLabel" hidden>Custom days
+            <input id="alternationSize" type="number" value="7" min="1" max="365" />
+          </label>
+          <label id="alternationColorLabel">Color
             <input id="colorAlternation" type="color" value="#d2f0fa" />
           </label>
-          <label>Weekend
-            <input id="colorWeekend" type="color" value="#BAFFC9" />
+          <h4 class="subhead">Days &amp; months</h4>
+          <label>Color
+            <input id="highlightColor" type="color" value="#BAFFC9" />
           </label>
+          <div class="hl-group">
+            <span class="hl-label">Weekdays</span>
+            <div id="highlightWeekdays" class="toggle-row"></div>
+          </div>
+          <div class="hl-group">
+            <span class="hl-label">Months</span>
+            <div id="highlightMonths" class="toggle-row"></div>
+          </div>
         </fieldset>
 
         <fieldset>
@@ -92,29 +122,19 @@
             <input id="highlightCurrent" type="checkbox" checked />
             Highlight today
           </label>
-          <label>Alternate
-            <select id="alternationMode">
-              <option value="none">None</option>
-              <option value="day">Per day</option>
-              <option value="week">Per week</option>
-              <option value="month" selected>Per month</option>
-              <option value="custom">Custom days</option>
-            </select>
-          </label>
-          <label>Custom days
-            <input id="alternationSize" type="number" value="7" min="1" max="365" />
-          </label>
-          <label class="checkbox">
-            <input id="highlightWeekend" type="checkbox" checked />
-            Highlight weekends
-          </label>
           <label class="checkbox">
             <input id="showLabels" type="checkbox" />
             Show row labels
           </label>
           <label class="checkbox">
-            <input id="heatmap" type="checkbox" />
+            <input id="heatmap" type="checkbox" checked />
             Heatmap
+          </label>
+          <label>Heatmap low fade
+            <input id="heatmapLow" type="number" value="0.2" min="0" max="1" step="0.05" />
+          </label>
+          <label>Heatmap high fade
+            <input id="heatmapHigh" type="number" value="0.35" min="0" max="1" step="0.05" />
           </label>
         </fieldset>
 
@@ -134,6 +154,20 @@
           </div>
         </fieldset>
 
+        <fieldset class="event-types-card">
+          <legend>Event types</legend>
+          <div class="type-form">
+            <label>Name
+              <input id="typeName" type="text" placeholder="work" />
+            </label>
+            <label>Color
+              <input id="typeColor" type="color" value="#5577ff" />
+            </label>
+            <button id="addType" type="button">Add type</button>
+          </div>
+          <ul id="typeList"></ul>
+        </fieldset>
+
       </section>
 
       <section class="canvas">
@@ -141,7 +175,7 @@
       </section>
 
       <section class="events">
-        <fieldset>
+        <fieldset class="add-event-card">
           <legend>Add event</legend>
           <div class="event-form">
             <label>From
@@ -150,11 +184,10 @@
             <label>To (optional)
               <input id="eventEnd" type="date" />
             </label>
-            <label>Color
-              <input id="eventColor" type="color" value="#ff5577" />
-            </label>
             <label>Type
-              <input id="eventType" type="text" placeholder="work" />
+              <select id="eventType">
+                <option value="">(default)</option>
+              </select>
             </label>
             <label>Note
               <input id="eventNote" type="text" placeholder="Vacation" />
@@ -163,9 +196,15 @@
           </div>
           <ul id="eventList"></ul>
         </fieldset>
+
       </section>
+
+      <details class="config-box">
+        <summary>Configuration</summary>
+        <pre id="config"></pre>
+      </details>
     </main>
 
-    <script type="module" src="example.js?v=2"></script>
+    <script type="module" src="example.js?v=3"></script>
   </body>
 </html>

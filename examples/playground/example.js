@@ -1,4 +1,5 @@
-import { Daytiles, Layout, Shape } from "../../dist/index.js";
+import { Daytiles, Layout, Shape } from "../../dist/index.js?v=3";
+import { renderConfig } from "../utils/config.js";
 
 const PRESET_MONTH = "month";
 const PRESET_QUARTER = "quarter";
@@ -11,7 +12,7 @@ const svg = document.getElementById("calendar");
 const dt = new Daytiles();
 dt.onTileClick(({ date, events }) => {
   const notes = events.map((e) => e.note).filter(Boolean).join(" • ");
-  const suffix = notes ? ` — ${notes}` : "";
+  const suffix = notes ? `: ${notes}` : "";
   console.log(`Clicked ${date.toDateString()} (${events.length})${suffix}`);
 });
 const eventIdsByButton = new Map();
@@ -37,20 +38,105 @@ const inputs = {
   pastFade: $("pastFade"),
   futureFade: $("futureFade"),
   colorAlternation: $("colorAlternation"),
-  colorWeekend: $("colorWeekend"),
+  highlightColor: $("highlightColor"),
   shape: $("shape"),
   highlightCurrent: $("highlightCurrent"),
   alternationMode: $("alternationMode"),
   alternationSize: $("alternationSize"),
-  highlightWeekend: $("highlightWeekend"),
   showLabels: $("showLabels"),
   heatmap: $("heatmap"),
+  heatmapLow: $("heatmapLow"),
+  heatmapHigh: $("heatmapHigh"),
+  defaultEventColor: $("defaultEventColor"),
 };
 
+let eventTypes = [];
+const typeListEl = $("typeList");
+const typeNameInput = $("typeName");
+const typeColorInput = $("typeColor");
+const eventTypeSelect = $("eventType");
+
+function eventTypeColorsMap() {
+  const out = {};
+  for (const t of eventTypes) out[t.name] = t.color;
+  return out;
+}
+
+function refreshTypeList() {
+  typeListEl.innerHTML = "";
+  for (const t of eventTypes) {
+    const li = document.createElement("li");
+    const swatch = document.createElement("span");
+    swatch.className = "swatch";
+    swatch.style.background = t.color;
+    const label = document.createElement("span");
+    label.textContent = t.name;
+    const remove = document.createElement("button");
+    remove.className = "remove";
+    remove.type = "button";
+    remove.textContent = "✕";
+    remove.addEventListener("click", () => {
+      eventTypes = eventTypes.filter((x) => x.name !== t.name);
+      refreshTypeList();
+      refreshTypeOptions();
+      render();
+    });
+    li.append(swatch, label, remove);
+    typeListEl.appendChild(li);
+  }
+}
+
+function refreshTypeOptions() {
+  const current = eventTypeSelect.value;
+  eventTypeSelect.innerHTML = "";
+  const blank = document.createElement("option");
+  blank.value = "";
+  blank.textContent = "(default)";
+  eventTypeSelect.appendChild(blank);
+  for (const t of eventTypes) {
+    const opt = document.createElement("option");
+    opt.value = t.name;
+    opt.textContent = t.name;
+    eventTypeSelect.appendChild(opt);
+  }
+  if ([...eventTypeSelect.options].some((o) => o.value === current)) {
+    eventTypeSelect.value = current;
+  }
+}
+
+const highlightWeekdays = new Set([SUNDAY, SATURDAY]);
+const highlightMonths = new Set();
+
+const WEEKDAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const MONTH_NAMES = [
+  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+];
+
+function buildToggles(containerId, names, set) {
+  const container = $(containerId);
+  container.innerHTML = "";
+  names.forEach((label, idx) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.textContent = label;
+    if (set.has(idx)) btn.classList.add("active");
+    btn.addEventListener("click", () => {
+      if (set.has(idx)) set.delete(idx);
+      else set.add(idx);
+      btn.classList.toggle("active");
+      render();
+    });
+    container.appendChild(btn);
+  });
+}
+
 function applySettings() {
-  const weekdays = inputs.highlightWeekend.checked
-    ? { [SUNDAY]: inputs.colorWeekend.value, [SATURDAY]: inputs.colorWeekend.value }
-    : {};
+  const color = inputs.highlightColor.value;
+  const weekdays = {};
+  for (const d of highlightWeekdays) weekdays[d] = color;
+  const months = {};
+  for (const m of highlightMonths) months[m] = color;
   dt.update({
     layout: inputs.layout.value,
     startDate: inputs.startDate.value,
@@ -72,15 +158,28 @@ function applySettings() {
         size: parseInt(inputs.alternationSize.value) || 7,
       },
       highlightCurrent: inputs.highlightCurrent.checked,
-      highlight: { weekdays, months: {} },
+      highlight: { weekdays, months },
       heatmap: inputs.heatmap.checked,
+      heatmapLow: parseFloat(inputs.heatmapLow.value),
+      heatmapHigh: parseFloat(inputs.heatmapHigh.value),
+      defaultEventColor: inputs.defaultEventColor.value,
+      eventTypeColors: eventTypeColorsMap(),
     },
   });
 }
 
+function syncAlternationVisibility() {
+  const mode = inputs.alternationMode.value;
+  document.getElementById("alternationColorLabel").hidden = mode === "none";
+  document.getElementById("alternationSizeLabel").hidden = mode !== "custom";
+}
+
 function render() {
+  syncAlternationVisibility();
   applySettings();
   dt.render(svg);
+  const { events: _drop, ...cfg } = dt.getSettings();
+  renderConfig(document.getElementById("config"), cfg);
 }
 
 Object.values(inputs).forEach((el) => {
@@ -91,8 +190,6 @@ Object.values(inputs).forEach((el) => {
 const eventList = document.getElementById("eventList");
 const eventStartInput = document.getElementById("eventStart");
 const eventEndInput = document.getElementById("eventEnd");
-const eventColorInput = document.getElementById("eventColor");
-const eventTypeInput = document.getElementById("eventType");
 const eventNoteInput = document.getElementById("eventNote");
 
 function refreshEventList() {
@@ -101,14 +198,18 @@ function refreshEventList() {
   for (const entry of dt.listEvents()) {
     const li = document.createElement("li");
 
+    const typeColor = entry.type
+      ? eventTypes.find((t) => t.name === entry.type)?.color
+      : undefined;
     const swatch = document.createElement("span");
     swatch.className = "swatch";
-    swatch.style.background = entry.color;
+    swatch.style.background = typeColor ?? inputs.defaultEventColor.value;
 
     const range =
       entry.start === entry.end ? entry.start : `${entry.start} → ${entry.end}`;
+    const typeLabel = entry.type ? ` [${entry.type}]` : "";
     const label = document.createElement("span");
-    label.textContent = `${range}${entry.note ? ` — ${entry.note}` : ""}`;
+    label.textContent = `${range}${typeLabel}${entry.note ? `: ${entry.note}` : ""}`;
 
     const remove = document.createElement("button");
     remove.className = "remove";
@@ -172,15 +273,30 @@ document.getElementById("addEvent").addEventListener("click", () => {
   dt.addEvent({
     start,
     end,
-    color: eventColorInput.value,
-    type: eventTypeInput.value || undefined,
+    type: eventTypeSelect.value || undefined,
     note: eventNoteInput.value,
   });
   eventStartInput.value = "";
   eventEndInput.value = "";
   eventNoteInput.value = "";
-  eventTypeInput.value = "";
   refreshEventList();
+  render();
+});
+
+document.getElementById("addType").addEventListener("click", () => {
+  const name = typeNameInput.value.trim();
+  if (!name) {
+    alert("Type name is required");
+    return;
+  }
+  if (eventTypes.some((t) => t.name === name)) {
+    alert("Type already exists");
+    return;
+  }
+  eventTypes.push({ name, color: typeColorInput.value });
+  typeNameInput.value = "";
+  refreshTypeList();
+  refreshTypeOptions();
   render();
 });
 
@@ -188,4 +304,48 @@ const currentYear = new Date().getFullYear();
 inputs.startDate.value = `${currentYear}-01-01`;
 inputs.endDate.value = `${currentYear}-12-31`;
 
+function seedDefaults() {
+  eventTypes = [
+    { name: "work", color: "#5577ff" },
+    { name: "travel", color: "#ff9933" },
+    { name: "health", color: "#33aa66" },
+  ];
+  refreshTypeList();
+  refreshTypeOptions();
+
+  const d = (mm, dd) => `${currentYear}-${mm}-${dd}`;
+  const seed = [
+    { start: d("02", "10"), end: d("02", "14"), type: "travel", note: "Conference" },
+    { start: d("03", "03"), type: "work", note: "Sprint review" },
+    { start: d("03", "03"), type: "health", note: "Checkup" },
+    { start: d("03", "03"), type: "work", note: "Demo day" },
+    { start: d("04", "15"), end: d("04", "18"), type: "work", note: "Workshop" },
+    { start: d("04", "16"), type: "health", note: "Dentist" },
+    { start: d("05", "01"), type: "travel", note: "Flight" },
+    { start: d("05", "02"), type: "travel", note: "Hotel" },
+    { start: d("05", "02"), type: "work", note: "Client" },
+    { start: d("06", "20"), end: d("06", "22"), type: "health", note: "Retreat" },
+    { start: d("07", "04"), type: "travel", note: "Holiday" },
+    { start: d("07", "04"), type: "health", note: "Rest" },
+    { start: d("07", "04"), type: "work", note: "On call" },
+    { start: d("09", "10"), type: "work", note: "Quarterly" },
+    { start: d("09", "11"), type: "work", note: "Followup" },
+    { start: d("11", "25"), end: d("11", "28"), type: "travel", note: "Trip" },
+    { start: d("11", "27"), type: "health", note: "Yoga" },
+  ];
+  for (const e of seed) {
+    dt.addEvent({
+      start: e.start,
+      end: e.end ?? e.start,
+      type: e.type,
+      note: e.note,
+    });
+  }
+  refreshEventList();
+}
+
+buildToggles("highlightWeekdays", WEEKDAY_NAMES, highlightWeekdays);
+buildToggles("highlightMonths", MONTH_NAMES, highlightMonths);
+
+seedDefaults();
 render();
