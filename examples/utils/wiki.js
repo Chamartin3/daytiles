@@ -21,12 +21,13 @@ export async function loadWiki(slug, target) {
 }
 
 export function bindWiki(dt, { wiki, info }) {
-  dt.onTileClick(({ date, event }) => {
+  dt.onTileClick(({ date, events }) => {
+    const event = events[0];
     if (info) {
-      info.textContent = event.note
-        ? `${date.toDateString()} — ${event.note}`
+      info.textContent = event?.note
+        ? `${date.toDateString()}: ${event.note}`
         : date.toDateString();
     }
-    if (event.wiki && wiki) loadWiki(event.wiki, wiki);
+    if (event?.wiki && wiki) loadWiki(event.wiki, wiki);
   });
 }
