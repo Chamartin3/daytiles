@@ -1,4 +1,5 @@
 import { Daytiles, Layout, Shape, AlternationMode } from "../../dist/index.js";
+import { renderConfig } from "../utils/config.js";
 
 const COLORS = {
   current: "#0a84ff",
@@ -14,7 +15,7 @@ const COLORS = {
   },
 };
 
-const dt = new Daytiles({
+const CONFIG = {
   layout: Layout.Week,
   shape: Shape.RoundedRect,
   startDate: "2026-07-01",
@@ -24,7 +25,9 @@ const dt = new Daytiles({
   startDayOfWeek: 1,
   showLabels: true,
   colors: COLORS,
-});
+};
+
+const dt = new Daytiles(CONFIG);
 
 const events = await fetch("./events.json").then((r) => r.json());
 dt.addEvents(events);
@@ -32,8 +35,10 @@ dt.addEvents(events);
 const info = document.getElementById("info");
 dt.onTileClick(({ date, event }) => {
   info.textContent = event.note
-    ? `${date.toDateString()} — ${event.note}`
+    ? `${date.toDateString()}: ${event.note}`
     : date.toDateString();
 });
 
 dt.render(document.getElementById("calendar"));
+
+renderConfig(document.getElementById("config"), CONFIG);

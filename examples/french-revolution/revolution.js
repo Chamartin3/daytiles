@@ -1,5 +1,6 @@
 import { Daytiles, Layout, Shape, AlternationMode } from "../../dist/index.js";
 import { bindWiki } from "../utils/wiki.js";
+import { renderConfig } from "../utils/config.js";
 
 const COLORS = {
   current: "#0055a4",
@@ -14,7 +15,7 @@ const COLORS = {
   },
 };
 
-const dt = new Daytiles({
+const CONFIG = {
   layout: Layout.Custom,
   shape: Shape.Rect,
   startDate: "1789-05-01",
@@ -25,7 +26,9 @@ const dt = new Daytiles({
   startDayOfWeek: 0,
   showLabels: false,
   colors: COLORS,
-});
+};
+
+const dt = new Daytiles(CONFIG);
 
 const events = await fetch("./events.json").then((r) => r.json());
 dt.addEvents(events);
@@ -36,3 +39,5 @@ bindWiki(dt, {
 });
 
 dt.render(document.getElementById("calendar"));
+
+renderConfig(document.getElementById("config"), CONFIG);

@@ -1,5 +1,5 @@
 [
-  { "start": "2026-07-01", "type": "kickoff", "note": "Q3 Kickoff — OKRs published" },
+  { "start": "2026-07-01", "type": "kickoff", "note": "Q3 Kickoff: OKRs published" },
   { "start": "2026-07-13", "end": "2026-07-17", "type": "sprint", "note": "Sprint 1 review week" },
   { "start": "2026-07-29", "type": "checkpoint", "note": "Mid-month checkpoint" },
   { "start": "2026-08-03", "end": "2026-08-07", "type": "sprint", "note": "Sprint 2 review week" },

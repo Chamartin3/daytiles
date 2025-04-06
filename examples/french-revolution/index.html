@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Daytiles — Every Day of the French Revolution</title>
+    <title>Daytiles: Every Day of the French Revolution</title>
     <link rel="stylesheet" href="../../styles.css" />
     <style>
       body { font-family: system-ui, sans-serif; max-width: 1100px; margin: 2em auto; padding: 0 1em; }
@@ -25,7 +25,7 @@
   <body>
     <p><a href="../">← All examples</a></p>
     <h1>Every Day of the French Revolution</h1>
-    <p class="meta">May 1789 – November 1799. Click a highlighted day for details.</p>
+    <p class="meta">May 1789 – November 1799, rendered in the custom layout. Click a highlighted day for details.</p>
     <div class="legend">
       <span><i class="swatch" style="background:#0055a4"></i> Political / legal</span>
       <span><i class="swatch" style="background:#6e6aaa"></i> Uprising / coup</span>
@@ -35,6 +35,10 @@
     <svg id="calendar"></svg>
     <p id="info" class="meta">Click a highlighted day to load its Wikipedia article below.</p>
     <div id="wiki"></div>
+    <details class="config-box">
+      <summary>Configuration</summary>
+      <pre id="config"></pre>
+    </details>
     <script type="module" src="revolution.js"></script>
   </body>
 </html>

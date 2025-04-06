@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Daytiles — Every Day of the American Revolution</title>
+    <title>Daytiles: Every Day of the American Revolution</title>
     <link rel="stylesheet" href="../../styles.css" />
     <style>
       body { font-family: system-ui, sans-serif; max-width: 1400px; margin: 2em auto; padding: 0 1em; }
@@ -13,10 +13,10 @@
       .swatch { width: 14px; height: 14px; border-radius: 3px; display: inline-block; }
       a { color: #0366d6; }
       .meta { color: #666; min-height: 1.4em; text-align: center; }
-      .layout { display: flex; gap: 1.5em; align-items: flex-start; justify-content: center; flex-wrap: wrap; }
-      .calendar-col { flex: 0 0 auto; }
+      .layout { display: flex; gap: 1.5em; align-items: stretch; justify-content: center; flex-wrap: nowrap; height: 70vh; }
+      .calendar-col { flex: 1 1 auto; min-width: 0; overflow: auto; }
       #calendar { display: block; }
-      #wiki { flex: 1 1 320px; max-width: 480px; min-width: 280px; padding: 1em 1.25em; border: 1px solid #ddd; border-radius: 6px; background: #fafbfc; display: none; }
+      #wiki { flex: 0 0 380px; max-width: 480px; min-width: 280px; padding: 1em 1.25em; border: 1px solid #ddd; border-radius: 6px; background: #fafbfc; display: none; overflow-y: auto; }
       #wiki.loaded { display: block; }
       #wiki h2 { margin: 0 0 0.5em; font-size: 1.2em; }
       #wiki img { float: right; max-width: 160px; margin: 0 0 0.5em 1em; border-radius: 4px; }
@@ -27,7 +27,7 @@
   <body>
     <p><a href="../">← All examples</a></p>
     <h1>Every Day of the American Revolution</h1>
-    <p class="meta">April 1775 – September 1783. Click a highlighted day to load its Wikipedia article.</p>
+    <p class="meta">April 1775 – September 1783, rendered in the monthly layout. Click a highlighted day to load its Wikipedia article.</p>
     <div class="legend">
       <span><i class="swatch" style="background:#3c3b6e"></i> Political</span>
       <span><i class="swatch" style="background:#6b6e9c"></i> Diplomacy</span>
@@ -41,6 +41,10 @@
       </div>
       <div id="wiki"></div>
     </div>
+    <details class="config-box">
+      <summary>Configuration</summary>
+      <pre id="config"></pre>
+    </details>
     <script type="module" src="revolution.js"></script>
   </body>
 </html>
