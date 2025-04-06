@@ -1,18 +1,19 @@
 # Daytiles
 
-A tiny JavaScript library for visualizing date ranges as grids of tiles. One tile per day, configurable layout, shape, colors, and events. No dependencies, renders to plain SVG.
+Snippet for visualizing date ranges as grids of tiles (Github syle)  One tile per day. Useful to visualize long ranges of days,  
 
-[**Live examples →**](https://chamartin3.github.io/daytiles/examples/)
 
-![Daytiles preview](examples/american-revolution/preview.png)
+Configurable layout, shape, colors, and events. No dependencies, renders to plain SVG.
 
-## What it's for
 
-You have a date range and want to show it visually — a habit tracker, a project timeline, a pregnancy calendar, a historical period. Daytiles draws one tile per day, lets you mark events on specific days or ranges, and arranges everything as weeks, months, weekdays, or a custom grid.
+[**See the Live examples →**](https://chamartin3.github.io/daytiles/examples/)
+
+<img width="1082" height="189" alt="Screenshot_20260507_003151" src="https://github.com/user-attachments/assets/6a34141d-9262-49d8-8e6b-c8d64363ec2a" />
+
+
 
 ## Using it
 
-This is a **GitHub repository**, not an npm package. To use it, copy `dist/index.js` into your project (or reference it directly via a relative path) and import the `Daytiles` class.
 
 ```html
 <!doctype html>
@@ -123,12 +124,12 @@ colors: {
 
 `AlternationMode` picks which buckets get the alternation color:
 
-- `None` — disabled
-- `Day` — every other day
-- `Week` — every other ISO week
-- `Month` — every other month
-- `Year` — every other calendar year (useful for multi-year ranges)
-- `Custom` — every `size` days
+- `None`: disabled
+- `Day`: every other day
+- `Week`: every other ISO week
+- `Month`: every other month
+- `Year`: every other calendar year (useful for multi-year ranges)
+- `Custom`: every `size` days
 
 ## Events
 
@@ -173,28 +174,6 @@ dt.update({ layout: Layout.Week, daySize: 20 });
 dt.render(svgElement);
 ```
 
-## Examples
-
-The [`examples/`](examples/) directory has six self-contained demos. Each one is a static HTML page that imports `dist/index.js` directly — open them locally with any static server, or browse the live versions on GitHub Pages.
-
-| Example                       | Showcases                                            |
-| ----------------------------- | ---------------------------------------------------- |
-| `playground/`                 | Every option exposed as a live form control.         |
-| `habit-tracker/`              | `Layout.Weekday`, weekday-style heatmap.             |
-| `pregnancy/`                  | `Layout.Week`, `Shape.Circle`, themed colors.        |
-| `quarterly-goals/`            | One quarter, sprint markers as ranges.               |
-| `american-revolution/`        | `Layout.Month`, multi-year, side Wikipedia panel.    |
-| `french-revolution/`          | `Layout.Custom` (90 days/row), year alternation.     |
-
-## Deploying the examples
-
-The repo includes a GitHub Actions workflow at `.github/workflows/pages.yml` that publishes the entire repo to GitHub Pages on every push to `main`. To enable it:
-
-1. Push the repo to GitHub.
-2. In **Settings → Pages**, set **Source** to **GitHub Actions**.
-3. The workflow will run automatically; the examples will be available at `https://chamartin3.github.io/daytiles/examples/`.
-
-Because the examples reference `../../dist/index.js` directly, no build step is required at deploy time — `dist/` is committed alongside the source.
 
 ## License
 
