@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Daytiles: Sales Leads</title>
+    <link rel="stylesheet" href="../../styles.css" />
+    <style>
+      body { font-family: system-ui, sans-serif; max-width: 1100px; margin: 2em auto; padding: 0 1em; }
+      .stats { display: flex; gap: 1.5em; margin: 1em 0; font-size: 0.9em; color: #555; }
+      .stats strong { color: #222; font-size: 1.05em; }
+      #info { margin-top: 1em; min-height: 1.4em; color: #555; font-size: 0.9em; }
+      a { color: #0366d6; }
+    </style>
+  </head>
+  <body>
+    <p><a href="../">← All examples</a></p>
+    <h1>Sales Leads: Q2 2024</h1>
+    <p>Each tile is a day. Tile saturation reflects the total deal weight (sum of $k) closed that day, not just the lead count: so one whale outshines a busy day of small deals.</p>
+    <div class="stats" id="stats"></div>
+    <svg id="calendar"></svg>
+    <div id="info">Hover or click a day to see the leads.</div>
+    <details class="config-box">
+      <summary>Configuration</summary>
+      <pre id="config"></pre>
+    </details>
+    <script type="module" src="leads.js"></script>
+  </body>
+</html>
