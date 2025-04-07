@@ -9,20 +9,24 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
-    }
+    },
+    "./styles.css": "./styles.css"
   },
   "files": [
     "dist",
-    "src"
+    "src",
+    "styles.css"
   ],
   "scripts": {
     "build": "npm run clean && npm run build:js && npm run build:types",
     "build:js": "esbuild src/index.ts --bundle --format=esm --target=es2022 --sourcemap --outfile=dist/index.js",
     "build:types": "tsc --emitDeclarationOnly --declaration --outDir dist",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "samples": "node scripts/render-samples.mjs"
   },
   "devDependencies": {
     "esbuild": "^0.28.0",
+    "jsdom": "^29.1.1",
     "typescript": "^5.4.0"
   },
   "license": "MIT"

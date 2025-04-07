@@ -18,10 +18,10 @@ export interface ColorSettings {
     heatmapLow?: number;
     heatmapHigh?: number;
 }
-export declare const DATE_BOX_CLASS = "dateBox";
-export declare const FUTURE_DAY_CLASS = "future-day";
-export declare const PRESENT_DAY_CLASS = "present-day";
-export declare const PAST_DAY_CLASS = "past-day";
+export declare const DATE_BOX_CLASS = "DayTiles--day";
+export declare const FUTURE_DAY_CLASS = "DayTiles--day--future";
+export declare const PRESENT_DAY_CLASS = "DayTiles--day--present";
+export declare const PAST_DAY_CLASS = "DayTiles--day--past";
 export declare function getColor(dateContext: DateContext, colorSettings: ColorSettings): string;
 export declare function lerpHex(a: string, b: string, t: number): string;
 export declare function getClasses(ctx: Pick<DateContext, "isPresent" | "isPast" | "isFuture">): string[];

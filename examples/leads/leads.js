@@ -1,4 +1,4 @@
-import { Daytiles, Layout, Shape, AlternationMode } from "../../dist/index.js";
+import { Daytiles, Layout, Shape, AlternationMode } from "daytiles";
 import { renderConfig } from "../utils/config.js";
 
 const START = "2024-04-01";

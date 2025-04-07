@@ -1,24 +1,6 @@
-import { type ColorSettings } from "./colors.js";
-import { type EventInfo } from "./dates.js";
 import { type CalendarSettings } from "./settings.js";
-import { Shape } from "./shapes.js";
-export interface TileClickEvent {
-    date: Date;
-    events: EventInfo[];
-    domEvent: MouseEvent;
-}
-export type TileClickHandler = (e: TileClickEvent) => void;
-interface TileOptions {
-    x: number;
-    y: number;
-    size: number;
-    shape: Shape;
-    events: EventInfo[];
-    colorSettings: ColorSettings;
-    maxWeight: number;
-    onClick?: TileClickHandler;
-}
-export declare function drawDateTile(dateToDraw: Date, { x, y, size, shape, events, colorSettings, maxWeight, onClick }: TileOptions): SVGElement;
+import { type TileClickHandler } from "./tile.js";
+export type { TileClickEvent, TileClickHandler } from "./tile.js";
+export declare const CONTAINER_CLASS = "DayTilesContainer";
 export declare function drawCalendar(svgElement: SVGSVGElement, settings: CalendarSettings, onTileClick?: TileClickHandler): void;
-export {};
 //# sourceMappingURL=draw.d.ts.map

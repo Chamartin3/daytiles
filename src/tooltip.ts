@@ -1,5 +1,5 @@
 const TOOLTIP_ID = "daytiles-tooltip";
-const TOOLTIP_CLASS = "tooltip-box";
+const TOOLTIP_CLASS = "DayTiles--tooltip";
 const DATA_DATE_ATTR = "data-date";
 const DATA_NOTE_ATTR = "data-note";
 const DATA_COUNT_ATTR = "data-count";

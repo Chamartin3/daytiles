@@ -25,10 +25,10 @@ export interface ColorSettings {
   heatmapHigh?: number;
 }
 
-export const DATE_BOX_CLASS = "dateBox";
-export const FUTURE_DAY_CLASS = "future-day";
-export const PRESENT_DAY_CLASS = "present-day";
-export const PAST_DAY_CLASS = "past-day";
+export const DATE_BOX_CLASS = "DayTiles--day";
+export const FUTURE_DAY_CLASS = "DayTiles--day--future";
+export const PRESENT_DAY_CLASS = "DayTiles--day--present";
+export const PAST_DAY_CLASS = "DayTiles--day--past";
 
 export function getColor(
   dateContext: DateContext,

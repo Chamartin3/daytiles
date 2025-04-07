@@ -1,89 +1,3 @@
-// src/alternation.ts
-var AlternationMode = /* @__PURE__ */ ((AlternationMode3) => {
-  AlternationMode3["None"] = "none";
-  AlternationMode3["Day"] = "day";
-  AlternationMode3["Week"] = "week";
-  AlternationMode3["Month"] = "month";
-  AlternationMode3["Year"] = "year";
-  AlternationMode3["Custom"] = "custom";
-  return AlternationMode3;
-})(AlternationMode || {});
-function alternationBucket(ctx, mode, size) {
-  switch (mode) {
-    case "day" /* Day */:
-      return ctx.dayOfYear;
-    case "week" /* Week */:
-      return ctx.weekOfYear;
-    case "month" /* Month */:
-      return ctx.month;
-    case "year" /* Year */:
-      return ctx.year;
-    case "custom" /* Custom */:
-      return Math.floor(ctx.dayOfYear / Math.max(1, size));
-    case "none" /* None */:
-    default:
-      return -1;
-  }
-}
-function shouldAlternate(ctx, alternation) {
-  if (alternation.mode === "none" /* None */) return false;
-  const bucket = alternationBucket(ctx, alternation.mode, alternation.size);
-  return bucket >= 0 && bucket % 2 === 0;
-}
-
-// src/colors.ts
-var DATE_BOX_CLASS = "dateBox";
-var FUTURE_DAY_CLASS = "future-day";
-var PRESENT_DAY_CLASS = "present-day";
-var PAST_DAY_CLASS = "past-day";
-function getColor(dateContext, colorSettings) {
-  const { current: currentColor, dayColor, alternation } = colorSettings;
-  const weekdayColors = colorSettings.highlight?.weekdays ?? {};
-  const monthColors = colorSettings.highlight?.months ?? {};
-  const highlightCurrent = colorSettings.highlightCurrent !== false;
-  if (highlightCurrent && dateContext.isPresent) return currentColor;
-  const weekdayMatch = weekdayColors[dateContext.dayOfWeek];
-  if (weekdayMatch) return weekdayMatch;
-  const monthMatch = monthColors[dateContext.month];
-  if (monthMatch) return monthMatch;
-  if (shouldAlternate(dateContext, alternation)) {
-    return alternation.color;
-  }
-  return dayColor;
-}
-function parseHex(hex) {
-  let h = hex.trim().replace(/^#/, "");
-  if (h.length === 3) h = h.split("").map((c) => c + c).join("");
-  if (h.length !== 6) return null;
-  const n = parseInt(h, 16);
-  if (Number.isNaN(n)) return null;
-  return [n >> 16 & 255, n >> 8 & 255, n & 255];
-}
-function toHex(rgb) {
-  return "#" + rgb.map((v) => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, "0")).join("");
-}
-function lerpHex(a, b, t) {
-  const ca = parseHex(a);
-  const cb = parseHex(b);
-  if (!ca || !cb) return b;
-  const k = Math.max(0, Math.min(1, t));
-  return toHex([
-    ca[0] + (cb[0] - ca[0]) * k,
-    ca[1] + (cb[1] - ca[1]) * k,
-    ca[2] + (cb[2] - ca[2]) * k
-  ]);
-}
-function getClasses(ctx) {
-  const classList = [DATE_BOX_CLASS];
-  if (ctx.isFuture) classList.push(FUTURE_DAY_CLASS);
-  if (ctx.isPresent) {
-    classList.push(PRESENT_DAY_CLASS);
-  } else if (ctx.isPast) {
-    classList.push(PAST_DAY_CLASS);
-  }
-  return classList;
-}
-
 // src/dates.ts
 function stringToDate(datestring, year, last = false) {
   const [month, day] = datestring.split("-");
@@ -202,6 +116,39 @@ function createTile(shape, x, y, size) {
   }
 }
 
+// src/alternation.ts
+var AlternationMode = /* @__PURE__ */ ((AlternationMode3) => {
+  AlternationMode3["None"] = "none";
+  AlternationMode3["Day"] = "day";
+  AlternationMode3["Week"] = "week";
+  AlternationMode3["Month"] = "month";
+  AlternationMode3["Year"] = "year";
+  AlternationMode3["Custom"] = "custom";
+  return AlternationMode3;
+})(AlternationMode || {});
+function alternationBucket(ctx, mode, size) {
+  switch (mode) {
+    case "day" /* Day */:
+      return ctx.dayOfYear;
+    case "week" /* Week */:
+      return ctx.weekOfYear;
+    case "month" /* Month */:
+      return ctx.month;
+    case "year" /* Year */:
+      return ctx.year;
+    case "custom" /* Custom */:
+      return Math.floor(ctx.dayOfYear / Math.max(1, size));
+    case "none" /* None */:
+    default:
+      return -1;
+  }
+}
+function shouldAlternate(ctx, alternation) {
+  if (alternation.mode === "none" /* None */) return false;
+  const bucket = alternationBucket(ctx, alternation.mode, alternation.size);
+  return bucket >= 0 && bucket % 2 === 0;
+}
+
 // src/settings.ts
 var Layout = /* @__PURE__ */ ((Layout2) => {
   Layout2["Month"] = "month";
@@ -243,9 +190,62 @@ var BaseCalendarSettings = {
   }
 };
 
+// src/colors.ts
+var DATE_BOX_CLASS = "DayTiles--day";
+var FUTURE_DAY_CLASS = "DayTiles--day--future";
+var PRESENT_DAY_CLASS = "DayTiles--day--present";
+var PAST_DAY_CLASS = "DayTiles--day--past";
+function getColor(dateContext, colorSettings) {
+  const { current: currentColor, dayColor, alternation } = colorSettings;
+  const weekdayColors = colorSettings.highlight?.weekdays ?? {};
+  const monthColors = colorSettings.highlight?.months ?? {};
+  const highlightCurrent = colorSettings.highlightCurrent !== false;
+  if (highlightCurrent && dateContext.isPresent) return currentColor;
+  const weekdayMatch = weekdayColors[dateContext.dayOfWeek];
+  if (weekdayMatch) return weekdayMatch;
+  const monthMatch = monthColors[dateContext.month];
+  if (monthMatch) return monthMatch;
+  if (shouldAlternate(dateContext, alternation)) {
+    return alternation.color;
+  }
+  return dayColor;
+}
+function parseHex(hex) {
+  let h = hex.trim().replace(/^#/, "");
+  if (h.length === 3) h = h.split("").map((c) => c + c).join("");
+  if (h.length !== 6) return null;
+  const n = parseInt(h, 16);
+  if (Number.isNaN(n)) return null;
+  return [n >> 16 & 255, n >> 8 & 255, n & 255];
+}
+function toHex(rgb) {
+  return "#" + rgb.map((v) => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, "0")).join("");
+}
+function lerpHex(a, b, t) {
+  const ca = parseHex(a);
+  const cb = parseHex(b);
+  if (!ca || !cb) return b;
+  const k = Math.max(0, Math.min(1, t));
+  return toHex([
+    ca[0] + (cb[0] - ca[0]) * k,
+    ca[1] + (cb[1] - ca[1]) * k,
+    ca[2] + (cb[2] - ca[2]) * k
+  ]);
+}
+function getClasses(ctx) {
+  const classList = [DATE_BOX_CLASS];
+  if (ctx.isFuture) classList.push(FUTURE_DAY_CLASS);
+  if (ctx.isPresent) {
+    classList.push(PRESENT_DAY_CLASS);
+  } else if (ctx.isPast) {
+    classList.push(PAST_DAY_CLASS);
+  }
+  return classList;
+}
+
 // src/tooltip.ts
 var TOOLTIP_ID = "daytiles-tooltip";
-var TOOLTIP_CLASS = "tooltip-box";
+var TOOLTIP_CLASS = "DayTiles--tooltip";
 var DATA_DATE_ATTR = "data-date";
 var DATA_NOTE_ATTR = "data-note";
 var DATA_COUNT_ATTR = "data-count";
@@ -318,10 +318,7 @@ function hideDateTooltip() {
   if (el) el.style.display = "none";
 }
 
-// src/draw.ts
-var SVG_NS2 = "http://www.w3.org/2000/svg";
-var ROW_LABEL_CLASS = "row-label";
-var ROW_LABEL_GAP = 8;
+// src/tile.ts
 function sumWeights(events) {
   let total = 0;
   for (const e of events) total += e.weight ?? 1;
@@ -372,9 +369,9 @@ function drawDateTile(dateToDraw, { x, y, size, shape, events, colorSettings, ma
   const joinedNote = events.map((e) => e.note).filter((n) => Boolean(n)).join(" \u2022 ");
   if (joinedNote) tile.setAttribute("data-note", joinedNote);
   if (events.length > 1) tile.setAttribute("data-count", String(events.length));
-  const totalWeight = sumWeights(events);
-  if (events.length > 0 && totalWeight !== events.length) {
-    tile.setAttribute("data-weight", String(totalWeight));
+  const total = sumWeights(events);
+  if (events.length > 0 && total !== events.length) {
+    tile.setAttribute("data-weight", String(total));
   }
   tile.addEventListener("mouseover", showDateTooltip);
   tile.addEventListener("mouseout", hideDateTooltip);
@@ -387,6 +384,10 @@ function drawDateTile(dateToDraw, { x, y, size, shape, events, colorSettings, ma
   dayClasses.forEach((c) => tile.classList.add(c));
   return tile;
 }
+
+// src/labels.ts
+var ROW_LABEL_CLASS = "DayTiles--rowLabel";
+var ROW_LABEL_GAP = 8;
 var MONTH_NAMES = [
   "Jan",
   "Feb",
@@ -423,6 +424,10 @@ function rowLabel(layout, date, rowIndex, daysPerRow) {
       return "";
   }
 }
+
+// src/draw.ts
+var SVG_NS2 = "http://www.w3.org/2000/svg";
+var CONTAINER_CLASS = "DayTilesContainer";
 function drawCalendar(svgElement, settings, onTileClick) {
   const {
     layout,
@@ -439,6 +444,7 @@ function drawCalendar(svgElement, settings, onTileClick) {
     year,
     colors: colorSettings
   } = settings;
+  svgElement.classList.add(CONTAINER_CLASS);
   svgElement.innerHTML = "";
   const { startDate, endDate } = getRangeDates(begin, end, year);
   const currentDate = new Date(startDate);

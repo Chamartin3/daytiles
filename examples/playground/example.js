@@ -1,4 +1,4 @@
-import { Daytiles, Layout, Shape } from "../../dist/index.js?v=3";
+import { Daytiles, Layout, Shape } from "daytiles";
 import { renderConfig } from "../utils/config.js";
 
 const PRESET_MONTH = "month";

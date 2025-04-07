@@ -1,4 +1,4 @@
-import { Daytiles, Layout, Shape, AlternationMode } from "../../dist/index.js";
+import { Daytiles, Layout, Shape, AlternationMode } from "daytiles";
 import { bindWiki } from "../utils/wiki.js";
 import { renderConfig } from "../utils/config.js";
 

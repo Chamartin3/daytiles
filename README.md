@@ -10,16 +10,52 @@ Configurable layout, shape, colors, and events. No dependencies, renders to plai
 
 <img width="1082" height="189" alt="Screenshot_20260507_003151" src="https://github.com/user-attachments/assets/6a34141d-9262-49d8-8e6b-c8d64363ec2a" />
 
+## Gallery
 
+### Layouts
 
-## Using it
+| Month                              | Week                              | Weekday                              | Custom                              |
+| ---------------------------------- | --------------------------------- | ------------------------------------ | ----------------------------------- |
+| ![](docs/samples/layout-month.svg) | ![](docs/samples/layout-week.svg) | ![](docs/samples/layout-weekday.svg) | ![](docs/samples/layout-custom.svg) |
 
+### Shapes
+
+| Rect                             | Rounded                             | Circle                             | Diamond                             |
+| -------------------------------- | ----------------------------------- | ---------------------------------- | ----------------------------------- |
+| ![](docs/samples/shape-rect.svg) | ![](docs/samples/shape-rounded.svg) | ![](docs/samples/shape-circle.svg) | ![](docs/samples/shape-diamond.svg) |
+
+### Color themes
+
+| Cool                             | Warm                             | Forest                             | Heatmap                             |
+| -------------------------------- | -------------------------------- | ---------------------------------- | ----------------------------------- |
+| ![](docs/samples/theme-cool.svg) | ![](docs/samples/theme-warm.svg) | ![](docs/samples/theme-forest.svg) | ![](docs/samples/theme-heatmap.svg) |
+
+Regenerate with `npm run samples`.
+
+## Install
+
+```bash
+npm install daytiles
+```
+
+With a bundler (Vite, webpack, esbuild, etc.):
+
+```js
+import { Daytiles, Layout, Shape } from "daytiles";
+import "daytiles/styles.css";
+```
+
+In a plain HTML page, declare an importmap pointing at the package's ESM build:
 
 ```html
 <!doctype html>
+<link rel="stylesheet" href="./node_modules/daytiles/styles.css" />
 <svg id="calendar"></svg>
+<script type="importmap">
+  { "imports": { "daytiles": "./node_modules/daytiles/dist/index.js" } }
+</script>
 <script type="module">
-  import { Daytiles, Layout, Shape } from "./dist/index.js";
+  import { Daytiles, Layout, Shape } from "daytiles";
 
   const dt = new Daytiles({
     layout: Layout.Month,
@@ -37,7 +73,7 @@ Configurable layout, shape, colors, and events. No dependencies, renders to plai
 </script>
 ```
 
-That's it. The library auto-sizes the SVG to fit the rendered grid and makes it responsive.
+The library auto-sizes the SVG to fit the rendered grid and makes it responsive.
 
 ### Building from source
 
@@ -56,41 +92,41 @@ All options are passed to the `Daytiles` constructor or `update()`.
 
 How days are arranged into rows.
 
-| `Layout`          | Behavior                                                                 |
-| ----------------- | ------------------------------------------------------------------------ |
-| `Layout.Month`    | One row per calendar month. Best for multi-month or multi-year ranges.   |
-| `Layout.Week`     | One row per ISO week. Best for ~3-12 month ranges.                       |
-| `Layout.Weekday`  | Columns are weekdays, rows accumulate weeks (GitHub-style heatmap).      |
-| `Layout.Custom`   | Fixed `daysPerRow` count. Use for arbitrary widths regardless of weeks.  |
+| `Layout`         | Behavior                                                                |
+| ---------------- | ----------------------------------------------------------------------- |
+| `Layout.Month`   | One row per calendar month. Best for multi-month or multi-year ranges.  |
+| `Layout.Week`    | One row per ISO week. Best for ~3-12 month ranges.                      |
+| `Layout.Weekday` | Columns are weekdays, rows accumulate weeks (GitHub-style heatmap).     |
+| `Layout.Custom`  | Fixed `daysPerRow` count. Use for arbitrary widths regardless of weeks. |
 
 ### Shapes
 
 Each tile can be drawn as one of four shapes:
 
-| `Shape`              | Result                       |
-| -------------------- | ---------------------------- |
-| `Shape.Rect`         | Square (default).            |
-| `Shape.RoundedRect`  | Square with rounded corners. |
-| `Shape.Circle`       | Circle.                      |
-| `Shape.Diamond`      | 45°-rotated square.          |
+| `Shape`             | Result                       |
+| ------------------- | ---------------------------- |
+| `Shape.Rect`        | Square (default).            |
+| `Shape.RoundedRect` | Square with rounded corners. |
+| `Shape.Circle`      | Circle.                      |
+| `Shape.Diamond`     | 45°-rotated square.          |
 
 ### Sizing
 
-| Option            | Type     | Description                                                    |
-| ----------------- | -------- | -------------------------------------------------------------- |
-| `daySize`         | number   | Tile size in px.                                               |
-| `gap`             | number   | Spacing between tiles in px.                                   |
-| `daysPerRow`      | number   | Used only when `layout: Layout.Custom`.                        |
-| `startDayOfWeek`  | number   | 0 = Sunday, 1 = Monday. Affects week alignment.                |
-| `showLabels`      | boolean  | Show row labels (month/week names).                            |
-| `labelWidth`      | number   | Reserved width for labels in px.                               |
+| Option           | Type    | Description                                     |
+| ---------------- | ------- | ----------------------------------------------- |
+| `daySize`        | number  | Tile size in px.                                |
+| `gap`            | number  | Spacing between tiles in px.                    |
+| `daysPerRow`     | number  | Used only when `layout: Layout.Custom`.         |
+| `startDayOfWeek` | number  | 0 = Sunday, 1 = Monday. Affects week alignment. |
+| `showLabels`     | boolean | Show row labels (month/week names).             |
+| `labelWidth`     | number  | Reserved width for labels in px.                |
 
 ### Date range
 
-| Option       | Type                  | Description                                          |
-| ------------ | --------------------- | ---------------------------------------------------- |
-| `startDate`  | `string` or `Date`    | ISO `YYYY-MM-DD` string, or a `Date` instance.       |
-| `endDate`    | `string` or `Date`    | Inclusive end of the range.                          |
+| Option      | Type               | Description                                    |
+| ----------- | ------------------ | ---------------------------------------------- |
+| `startDate` | `string` or `Date` | ISO `YYYY-MM-DD` string, or a `Date` instance. |
+| `endDate`   | `string` or `Date` | Inclusive end of the range.                    |
 
 ### Colors
 
@@ -143,15 +179,15 @@ dt.addEvents([
 ]);
 ```
 
-| Method                       | Returns                  |
-| ---------------------------- | ------------------------ |
-| `addEvent(event)`            | event id                 |
-| `addEvents(events)`          | array of event ids       |
-| `prependEvent(event)`        | event id (rendered last) |
-| `prependEvents(events)`      | array of event ids       |
-| `removeEvent(id)`            | boolean                  |
-| `clearEvents()`              | void                     |
-| `listEvents()`               | array of stored events   |
+| Method                  | Returns                  |
+| ----------------------- | ------------------------ |
+| `addEvent(event)`       | event id                 |
+| `addEvents(events)`     | array of event ids       |
+| `prependEvent(event)`   | event id (rendered last) |
+| `prependEvents(events)` | array of event ids       |
+| `removeEvent(id)`       | boolean                  |
+| `clearEvents()`         | void                     |
+| `listEvents()`          | array of stored events   |
 
 Events are stacked in insertion order. When two events overlap, the first one inserted wins for color; notes accumulate joined by ` • `.
 
