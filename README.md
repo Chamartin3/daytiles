@@ -102,25 +102,25 @@ How days are arranged into rows.
 
 One row per calendar month. Best for multi-month or multi-year ranges.
 
-![](docs/layouts/layout-month.svg)
+![](docs/layouts/layout-month.png)
 
 #### `Layout.Week`
 
 One row per ISO week. Best for ~3-12 month ranges.
 
-![](docs/layouts/layout-week.svg)
+![](docs/layouts/layout-week.png)
 
 #### `Layout.Weekday`
 
 Columns are weekdays, rows accumulate weeks (GitHub-style heatmap).
 
-![](docs/layouts/layout-weekday.svg)
+![](docs/layouts/layout-weekday.png)
 
 #### `Layout.Custom`
 
 Fixed `daysPerRow` count. Use for arbitrary widths regardless of weeks.
 
-![](docs/layouts/layout-custom.svg)
+![](docs/layouts/layout-custom.png)
 
 ### Shapes
 
@@ -132,10 +132,10 @@ Each tile can be drawn as one of four shapes.
 
 | Shape               | Preview                             | Description                  |
 | ------------------- | ----------------------------------- | ---------------------------- |
-| `Shape.Rect`        | ![](docs/shapes/shape-rect.svg)    | Square (default).            |
-| `Shape.RoundedRect` | ![](docs/shapes/shape-rounded.svg) | Square with rounded corners. |
-| `Shape.Circle`      | ![](docs/shapes/shape-circle.svg)  | Circle.                      |
-| `Shape.Diamond`     | ![](docs/shapes/shape-diamond.svg) | 45°-rotated square.          |
+| `Shape.Rect`        | ![](docs/shapes/shape-rect.png)    | Square (default).            |
+| `Shape.RoundedRect` | ![](docs/shapes/shape-rounded.png) | Square with rounded corners. |
+| `Shape.Circle`      | ![](docs/shapes/shape-circle.png)  | Circle.                      |
+| `Shape.Diamond`     | ![](docs/shapes/shape-diamond.png) | 45°-rotated square.          |
 
 ### Sizing
 
